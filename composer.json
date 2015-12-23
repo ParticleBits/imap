@@ -36,6 +36,5 @@
         "psr-4": {
             "Pb\\Imap\\": "src/"
         }
-    },
-    "minimum-stability": "stable"
+    }
 }
