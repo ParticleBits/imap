@@ -29,8 +29,8 @@
     ],
     "require": {
         "php": ">=5.3.0",
-        "particlebits/zend-mail": "dev-master",
-        "particlebits/zend-mime": "dev-master"
+        "particlebits/zend-mail": "@dev",
+        "particlebits/zend-mime": "@dev"
     },
     "autoload": {
         "psr-4": {
