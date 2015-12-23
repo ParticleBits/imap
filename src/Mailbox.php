@@ -350,6 +350,9 @@ class Mailbox
         $message->toString = ( isset( $head->to ) )
             ? $head->to->getFieldValue()
             : '';
+        $message->fromString = ( isset( $head->from ) )
+            ? $head->from->getFieldValue()
+            : '';
         $message->cc = ( isset( $head->cc ) )
             ? $this->getAddresses( $head, 'cc' )
             : [];

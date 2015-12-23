@@ -9,8 +9,12 @@ class Message
     public $id;
     public $to = [];
     public $cc = [];
+    public $uid = "";
+    public $size = 0;
     public $date = "";
     public $flags = [];
+    public $flags = [];
+    public $headers = [];
     public $headers = [];
     public $subject = "";
     public $toString = "";
@@ -19,6 +23,8 @@ class Message
     public $textPlain = "";
     public $messageId = "";
     public $inReplyTo = [];
+    public $messageNum = 0;
+    public $fromString = "";
     public $fromAddress = "";
 
     // Reference to IMAP message object
