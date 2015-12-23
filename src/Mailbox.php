@@ -54,9 +54,9 @@ class Mailbox
     {
         $this->imapLogin = $login;
         $this->imapHost = $hostname;
-        $this->imapFolder = $folder;
         $this->debugMode = $debugMode;
         $this->imapPassword = $password;
+        $this->imapFolder = ( $folder ?: 'INBOX' );
 
         if ( $attachmentsDir ) {
             if ( ! is_dir( $attachmentsDir ) ) {
