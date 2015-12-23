@@ -13,6 +13,7 @@ class Message
     public $size = 0;
     public $date = "";
     public $flags = [];
+    public $charset = "";
     public $headers = [];
     public $subject = "";
     public $toString = "";

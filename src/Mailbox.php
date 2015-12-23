@@ -229,6 +229,7 @@ class Mailbox
      * the following format:
      *   uid: integer,
      *   size: integer,
+     *   charset: string,
      *   flags: [
      *       seen: bool,
      *       draft: bool,
@@ -257,6 +258,7 @@ class Mailbox
     {
         // Set up the new message
         $messageInfo = new stdClass();
+        $messageInfo->charset = NULL;
         $messageInfo->messageNum = $id;
         $messageInfo->flags = new stdClass();
         $messageInfo->headers = new stdClass();
@@ -271,14 +273,14 @@ class Mailbox
         // Use this to lookup the headers
         $headers = $message->getHeaders();
         $headerMap = [
-            'To' => 'to',
-            'From' => 'from',
-            'Date' => 'date',
-            'Message-ID' => 'id',
-            'Subject' => 'subject',
-            'References' => 'references',
-            'In-Reply-To' => 'inReplyTo',
-            'Content-Type' => 'contentType'
+            'to' => 'to',
+            'from' => 'from',
+            'date' => 'date',
+            'message-id' => 'id',
+            'subject' => 'subject',
+            'references' => 'references',
+            'in-reply-to' => 'inReplyTo',
+            'content-type' => 'contentType'
         ];
 
         // Add the headers. This could throw exceptions during the
@@ -292,6 +294,14 @@ class Mailbox
                 $messageInfo->headers->$key =
                     current( $messageInfo->headers->$key );
             }
+        }
+
+        // Try to store the character-set from the content type.
+        // This will probably only exist on text/plain parts.
+        if ( $headers->has( 'content-type' ) ) {
+            $messageInfo->charset = $headers
+                ->get( 'content-type' )
+                ->getParameter( 'charset' );
         }
 
         // Add in the flags
@@ -329,29 +339,34 @@ class Mailbox
             ? $head->id->getFieldValue()
             : NULL;
         $time = ( isset( $head->date ) )
-            ? strtotime( preg_replace( '/\(.*?\)/', '', $head->date->getFieldValue() ) )
+            ? strtotime(
+                preg_replace(
+                    '/\(.*?\)/',
+                    '',
+                    $head->date->getFieldValue()
+                ))
             : time();
         $message->date = date( 'Y-m-d H:i:s', $time );
         $message->subject = ( isset( $head->subject ) )
             ? $head->subject->getFieldValue()
-            : NULL;
+            : '';
         // Try to get the from address and name
         $from = $this->getAddresses( $head, 'from' );
         $message->fromName = ( $from )
             ? $from[ 0 ]->getName()
-            : NULL;
+            : '';
         $message->fromAddress = ( $from )
             ? $from[ 0 ]->getEmail()
-            : NULL;
-        // The next two fields are the remaining addresses
+            : '';
+        $message->fromString = ( isset( $head->from ) )
+            ? $head->from->getFieldValue()
+            : '';
+        // The next fields are the remaining addresses
         $message->to = ( isset( $head->to ) )
             ? $this->getAddresses( $head, 'to' )
             : [];
         $message->toString = ( isset( $head->to ) )
             ? $head->to->getFieldValue()
-            : '';
-        $message->fromString = ( isset( $head->from ) )
-            ? $head->from->getFieldValue()
             : '';
         $message->cc = ( isset( $head->cc ) )
             ? $this->getAddresses( $head, 'cc' )
@@ -368,6 +383,7 @@ class Mailbox
         $message->size = $messageInfo->size;
         $message->flags = $messageInfo->flags;
         $message->headers = $messageInfo->headers;
+        $message->charset = $messageInfo->charset;
         $message->messageNum = $messageInfo->messageNum;
 
         // If this is NOT a multipart message, store the plain text
@@ -497,6 +513,8 @@ class Mailbox
     protected function processTextContent( Message &$message, $contentType, $content, $charset )
     {
         if ( $contentType === Mime::TYPE_TEXT ) {
+            // Set the charset here if we have one
+            $message->charset = $charset;
             $message->textPlain .= File::convertEncoding( $content, $charset, 'UTF-8' );
         }
         elseif ( $contentType === Mime::TYPE_HTML ) {
