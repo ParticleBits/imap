@@ -149,7 +149,6 @@ class Mailbox
      */
     public function getFolders( $rootFolder = NULL )
     {
-        $rootFolder = $rootFolder ?: $this->imapFolder;
         $folders = $this->getImapStream()->getFolders( $rootFolder );
 
         if ( ! $folders ) {
