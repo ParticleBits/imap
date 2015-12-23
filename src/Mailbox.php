@@ -257,7 +257,7 @@ class Mailbox
     {
         // Set up the new message
         $messageInfo = new stdClass();
-        $messageInfo->messgeNum = $id;
+        $messageInfo->messageNum = $id;
         $messageInfo->flags = new stdClass();
         $messageInfo->headers = new stdClass();
 
@@ -357,11 +357,15 @@ class Mailbox
         $message->inReplyTo = ( isset( $head->inReplyTo ) )
             ? $head->inReplyTo->getFieldValue()
             : NULL;
-        // Save the flas and headers
-        $message->flags = $messageInfo->flags;
-        $message->headers = $messageInfo->headers;
         // Set an internal reference to the IMAP protocol message
         $message->setImapMessage( $messageInfo->message );
+
+        // Extend message with messageInfo
+        $message->uid = $messageInfo->uid;
+        $message->size = $messageInfo->size;
+        $message->flags = $messageInfo->flags;
+        $message->headers = $messageInfo->headers;
+        $message->messageNum = $messageInfo->messageNum;
 
         // If this is NOT a multipart message, store the plain text
         if ( ! $messageInfo->message->isMultipart() ) {
