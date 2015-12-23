@@ -245,6 +245,7 @@ class Mailbox
      *       from: Who sent it, string
      *       id: Unique identifier, string
      *       date: When it was sent, string
+     *       replyTo: Who should be replied to
      *       subject: Message's subject, string
      *       contentType: Content type of the message
      *       inReplyTo: ID of message this replying to
@@ -339,12 +340,15 @@ class Mailbox
         $message->messageId = ( isset( $head->id ) )
             ? $head->id->getFieldValue()
             : NULL;
-        $time = ( isset( $head->date ) )
+        $message->dateString = ( isset( $head->date ) )
+            ? $head->date->getFieldValue()
+            : '';
+        $time = ( $message->dateString )
             ? strtotime(
                 preg_replace(
                     '/\(.*?\)/',
                     '',
-                    $head->date->getFieldValue()
+                    $message->dateString
                 ))
             : time();
         $message->date = date( 'Y-m-d H:i:s', $time );
@@ -378,6 +382,11 @@ class Mailbox
         // This is a message ID that the message is replying to
         $message->inReplyTo = ( isset( $head->inReplyTo ) )
             ? $head->inReplyTo->getFieldValue()
+            : NULL;
+        // This is a list of other message IDs that this message
+        // may reference
+        $message->references = ( isset( $head->references ) )
+            ? $head->references->getFieldValue()
             : NULL;
         // Set an internal reference to the IMAP protocol message
         $message->setImapMessage( $messageInfo->message );

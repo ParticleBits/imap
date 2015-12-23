@@ -24,7 +24,8 @@ class Message
     public $messageId = "";
     public $inReplyTo = "";
     public $messageNum = 0;
-    public $referneces = "";
+    public $references = "";
+    public $dateString = "";
     public $fromString = "";
     public $fromAddress = "";
 
