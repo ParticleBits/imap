@@ -10,6 +10,8 @@ class Message
     public $to = [];
     public $cc = [];
     public $date = "";
+    public $flags = [];
+    public $headers = [];
     public $subject = "";
     public $toString = "";
     public $fromName = "";

@@ -357,6 +357,9 @@ class Mailbox
         $message->inReplyTo = ( isset( $head->inReplyTo ) )
             ? $head->inReplyTo->getFieldValue()
             : NULL;
+        // Save the flas and headers
+        $message->flags = $messageInfo->flags;
+        $message->headers = $messageInfo->headers;
         // Set an internal reference to the IMAP protocol message
         $message->setImapMessage( $messageInfo->message );
 
