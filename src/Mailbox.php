@@ -324,10 +324,10 @@ class Mailbox
 
         // Store some common properties
         $message->id = $id;
+        $head = $messageInfo->headers;
         $message->messageId = ( isset( $head->id ) )
             ? $head->id->getFieldValue()
             : NULL;
-        $head = $messageInfo->headers;
         $time = ( isset( $head->date ) )
             ? strtotime( preg_replace( '/\(.*?\)/', '', $head->date->getFieldValue() ) )
             : time();
