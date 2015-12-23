@@ -23,6 +23,7 @@ class Message
     public $messageId = "";
     public $inReplyTo = [];
     public $messageNum = 0;
+    public $referneces = "";
     public $fromString = "";
     public $fromAddress = "";
 
