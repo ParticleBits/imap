@@ -22,7 +22,7 @@ favour of the Zend Mail library.
 }
 ```
 
-Or
+*or*
 
 ```
 $> composer require particlebits/imap ~1.0
@@ -33,7 +33,7 @@ $> composer require particlebits/imap ~1.0
 ```php
 $mailbox = new \Pb\Imap\Mailbox(
     "imap.gmail.com",
-    "somethhing@gmail.com",
+    "something@gmail.com",
     "**********",
     "INBOX",
     __DIR__ .'/attachments',
