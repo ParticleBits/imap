@@ -16,12 +16,13 @@ class Message
     public $charset = "";
     public $headers = [];
     public $subject = "";
+    public $replyTo = [];
     public $toString = "";
     public $fromName = "";
     public $textHtml = "";
     public $textPlain = "";
     public $messageId = "";
-    public $inReplyTo = [];
+    public $inReplyTo = "";
     public $messageNum = 0;
     public $referneces = "";
     public $fromString = "";

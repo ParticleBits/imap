@@ -278,6 +278,7 @@ class Mailbox
             'date' => 'date',
             'message-id' => 'id',
             'subject' => 'subject',
+            'reply-to' => 'replyTo',
             'references' => 'references',
             'in-reply-to' => 'inReplyTo',
             'content-type' => 'contentType'
@@ -370,6 +371,9 @@ class Mailbox
             : '';
         $message->cc = ( isset( $head->cc ) )
             ? $this->getAddresses( $head, 'cc' )
+            : [];
+        $message->replyTo = ( isset( $head->replyTo ) )
+            ? $this->getAddresses( $head, 'replyTo' )
             : [];
         // This is a message ID that the message is replying to
         $message->inReplyTo = ( isset( $head->inReplyTo ) )
