@@ -14,7 +14,6 @@ class Message
     public $date = "";
     public $flags = [];
     public $headers = [];
-    public $headers = [];
     public $subject = "";
     public $toString = "";
     public $fromName = "";
