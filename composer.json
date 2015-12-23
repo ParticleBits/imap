@@ -1,0 +1,41 @@
+{
+    "name": "particlebits/imap",
+    "description": "PHP class to access an IMAP mailbox. Specifically uses the Zend library and not the IMAP extension.",
+    "keywords": [
+        "PHP",
+        "IMAP",
+        "mail",
+        "fetch"
+    ],
+    "homepage": "https://github.com/particlebits/imap",
+    "license": "BSD-3-Clause",
+    "type": "library",
+    "authors": [
+        {
+            "name": "Mike Gioia",
+            "homepage": "https://particlebits.com",
+            "email": "mike@particlebits.com"
+        }
+    ],
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/ParticleBits/zend-mail"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/ParticleBits/zend-mime"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.0",
+        "particlebits/zend-mail": "dev-master",
+        "particlebits/zend-mime": "dev-master"
+    },
+    "autoload": {
+        "psr-4": {
+            "Pb\\Imap\\": "src/"
+        }
+    },
+    "minimum-stability": "stable"
+}
