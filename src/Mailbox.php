@@ -216,6 +216,15 @@ class Mailbox
     }
 
     /**
+     * Changes the mailbox to a different folder.
+     * @param string $folder
+     */
+    public function select( $folder )
+    {
+        return $this->getImapStream()->selectFolder( $folder );
+    }
+
+    /**
      * Fetch headers for listed message IDs. Returns an object in
      * the following format:
      *   uid: integer,
