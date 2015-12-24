@@ -603,7 +603,8 @@ class Mailbox
                 'application/vnd.ms-excel.sheet.macroenabled.12',
                 'application/ms-tnef',
                 'audio/x-aiff',
-                'application/octetstream'
+                'application/octetstream',
+                'application/vnd.google-apps.photo'
             ] ) )
         {
             throw new Exception(
@@ -661,12 +662,14 @@ class Mailbox
 
         if ( is_null( $data ) ) {
             if ( $failOnNoEncode === TRUE ) {
+                //print_r( $headers );exit;
                 throw new Exception(
                     "Missing Content-Transfer-Encoding header. Unsure about ".
                     "how to decode.\nHeaders: ". print_r( $headers, TRUE ) );
             }
 
-            $data = $content;
+            // Default behavior is to base64 decode the content
+            $data = base64_decode( $content );
         }
 
         return $data;
