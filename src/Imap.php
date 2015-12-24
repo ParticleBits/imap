@@ -51,8 +51,19 @@ class Imap extends ZendImap
         return $select;
     }
 
-    public function search( array $params )
+    /**
+     * Forwards the search request to the protocol. If the UID
+     * option is specified, perform a UID search instead.
+     * See https://tools.ietf.org/search/rfc4731
+     * Returns an array of integers, either the message numbers
+     * or the UIDs if that option is enabled.
+     *
+     * @param array $params
+     * @param bool $uid
+     * @return array
+     */
+    public function search( array $params, $uid = TRUE )
     {
-        return $this->protocol->search( $params );
+        return $this->protocol->search( $params, $uid );
     }
 }
