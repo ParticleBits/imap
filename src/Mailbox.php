@@ -33,7 +33,7 @@ class Mailbox
     private $debugMode = FALSE;
 
     // Internal reference to IMAP connection
-    static protected $imapStream;
+    protected $imapStream;
 
     /**
      * Sets up a new mailbox object with the IMAP credentials to connect.
@@ -73,11 +73,11 @@ class Mailbox
      */
     public function getImapStream()
     {
-        if ( ! self::$imapStream ) {
-            self::$imapStream = $this->initImapStream();
+        if ( ! $this->imapStream ) {
+            $this->imapStream = $this->initImapStream();
         }
 
-        return self::$imapStream;
+        return $this->imapStream;
     }
 
     protected function initImapStream()
@@ -195,12 +195,12 @@ class Mailbox
      *   UNFLAGGED - match messages that are not flagged
      *   UNKEYWORD "string" - match messages that do not have the keyword "string"
      *   UNSEEN - match messages which have not been read yet
-     *
+     * @param bool $uid
      * @return array Message IDs
      */
-    public function search( $criteria = 'ALL' )
+    public function search( $criteria = 'ALL', $uid = FALSE )
     {
-        $messageIds = $this->getImapStream()->search([ $criteria ]);
+        $messageIds = $this->getImapStream()->search([ $criteria ], $uid );
 
         return $messageIds ?: [];
     }

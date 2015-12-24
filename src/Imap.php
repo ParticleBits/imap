@@ -62,7 +62,7 @@ class Imap extends ZendImap
      * @param bool $uid
      * @return array
      */
-    public function search( array $params, $uid = TRUE )
+    public function search( array $params, $uid = FALSE )
     {
         return $this->protocol->search( $params, $uid );
     }
