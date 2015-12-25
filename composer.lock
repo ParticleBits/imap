@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "bca39936ab3e7deeb9698459fa017702",
-    "content-hash": "679b3bae24b824bf1ab4b8abf2819856",
+    "hash": "221474cfa2649a01afdef4a47662b50e",
+    "content-hash": "9739666816901df2a25920635a086774",
     "packages": [
         {
             "name": "container-interop/container-interop",
@@ -40,12 +40,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/ParticleBits/zend-mail.git",
-                "reference": "6388627d4a8ca90fa35b90860eafdefd055ceb9d"
+                "reference": "b7e3dcad7adfb366583873d0918d736b09616545"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ParticleBits/zend-mail/zipball/6388627d4a8ca90fa35b90860eafdefd055ceb9d",
-                "reference": "6388627d4a8ca90fa35b90860eafdefd055ceb9d",
+                "url": "https://api.github.com/repos/ParticleBits/zend-mail/zipball/b7e3dcad7adfb366583873d0918d736b09616545",
+                "reference": "b7e3dcad7adfb366583873d0918d736b09616545",
                 "shasum": ""
             },
             "require": {
@@ -94,7 +94,7 @@
             "support": {
                 "source": "https://github.com/ParticleBits/zend-mail/tree/master"
             },
-            "time": "2015-12-23 13:45:29"
+            "time": "2015-12-24 13:37:50"
         },
         {
             "name": "particlebits/zend-mime",
@@ -102,12 +102,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/ParticleBits/zend-mime.git",
-                "reference": "041cbfe3194322255f55b5182ff7125b56558b9b"
+                "reference": "452f3edd11c9094b993ddbd96ada6594a5615d8f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ParticleBits/zend-mime/zipball/041cbfe3194322255f55b5182ff7125b56558b9b",
-                "reference": "041cbfe3194322255f55b5182ff7125b56558b9b",
+                "url": "https://api.github.com/repos/ParticleBits/zend-mime/zipball/452f3edd11c9094b993ddbd96ada6594a5615d8f",
+                "reference": "452f3edd11c9094b993ddbd96ada6594a5615d8f",
                 "shasum": ""
             },
             "require": {
@@ -151,7 +151,7 @@
             "support": {
                 "source": "https://github.com/ParticleBits/zend-mime/tree/master"
             },
-            "time": "2015-12-23 13:46:14"
+            "time": "2015-12-25 03:48:12"
         },
         {
             "name": "zendframework/zend-crypt",

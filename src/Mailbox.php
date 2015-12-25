@@ -414,18 +414,18 @@ class Mailbox
         $partNum = 1;
 
         foreach ( $messageInfo->message as $part ) {
-            $partHead = $part->getHeaders();
-            $contentType = ( $partHead->has( 'content-type' ) )
-                ? strtolower( $partHead->get( 'content-type' )->getType() )
-                : NULL;
+            //$partHead = $part->getHeaders();
+            //$contentType = ( $partHead->has( 'content-type' ) )
+            //    ? strtolower( $partHead->get( 'content-type' )->getType() )
+            //    : NULL;
 
             // Check to see if this message is a container for sub-parts.
             // If it is we want to process those subparts.
-            if ( $contentType === 'message/rfc822' ) {
-                $part = new Part([
-                    'raw' => $part->getContent()
-                ]);
-            }
+            //if ( $contentType === 'message/rfc822' ) {
+            //    $part = new Part([
+            //        'raw' => $part->getContent()
+            //    ]);
+            //}
 
             $part->partNum = $partNum++;
             $this->processPart( $message, $part );
@@ -486,6 +486,7 @@ class Mailbox
             Mime::TYPE_HTML
         ];
         $multipartTypes = [
+            Mime::MESSAGE_RFC822,
             Mime::MULTIPART_MIXED,
             Mime::MULTIPART_RELATED,
             Mime::MULTIPART_ALTERNATIVE
@@ -510,6 +511,14 @@ class Mailbox
                     $subPart->partNum = $part->partNum .".". $subPartNum++;
                     $this->processContent( $message, $subPart );
                 }
+            }
+            // Most likely an RFC822 wrapper
+            else {
+                $wrappedPart = new Part([
+                    'raw' => $part->getContent()
+                ]);
+                $wrappedPart->partNum = $part->partNum;
+                $this->processContent( $message, $wrappedPart );
             }
         }
         elseif ( in_array( $contentType, $textTypes ) ) {
@@ -581,9 +590,9 @@ class Mailbox
 
         if ( ! $filename ) {
             // @TODO REMOVE AFTER TESTING
-            throw new Exception(
-                "TESTING: no file name was found in headers.\n".
-                "Headers: ". print_r( $headers, TRUE ) );
+            echo "TESTING: no file name was found in headers.\n".
+            print_r( $headers, TRUE );
+            exit;
             // END @TODO
         }
 
@@ -663,10 +672,8 @@ class Mailbox
 
         if ( is_null( $data ) ) {
             if ( $failOnNoEncode === TRUE ) {
-                //print_r( $headers );exit;
-                throw new Exception(
-                    "Missing Content-Transfer-Encoding header. Unsure about ".
-                    "how to decode.\nHeaders: ". print_r( $headers, TRUE ) );
+                echo "Missing Content-Transfer-Encoding header. Unsure about how to decode.";
+                print_r( $headers );exit;
             }
 
             // Default behavior is to base64 decode the content
