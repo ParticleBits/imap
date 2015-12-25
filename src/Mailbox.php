@@ -592,7 +592,7 @@ class Mailbox
             // @TODO REMOVE AFTER TESTING
             echo "TESTING: no file name was found in headers.\n".
             print_r( $headers, TRUE );
-            echo "\nPress [ENTER] to continue..."
+            echo "\nPress [ENTER] to continue...";
             fgetc( STDIN );
             // END @TODO
         }
