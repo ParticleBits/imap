@@ -592,7 +592,8 @@ class Mailbox
             // @TODO REMOVE AFTER TESTING
             echo "TESTING: no file name was found in headers.\n".
             print_r( $headers, TRUE );
-            exit;
+            echo "\nPress [ENTER] to continue..."
+            fgetc( STDIN );
             // END @TODO
         }
 
@@ -673,7 +674,9 @@ class Mailbox
         if ( is_null( $data ) ) {
             if ( $failOnNoEncode === TRUE ) {
                 echo "Missing Content-Transfer-Encoding header. Unsure about how to decode.";
-                print_r( $headers );exit;
+                print_r( $headers );
+                echo "\nPress [ENTER] to continue..."
+                fgetc( STDIN );
             }
 
             // Default behavior is to base64 decode the content
