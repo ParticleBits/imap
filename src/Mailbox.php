@@ -675,7 +675,7 @@ class Mailbox
             if ( $failOnNoEncode === TRUE ) {
                 echo "Missing Content-Transfer-Encoding header. Unsure about how to decode.";
                 print_r( $headers );
-                echo "\nPress [ENTER] to continue..."
+                echo "\nPress [ENTER] to continue...";
                 fgetc( STDIN );
             }
 
