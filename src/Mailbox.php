@@ -618,10 +618,11 @@ class Mailbox
                 'application/vnd.google-apps.photo'
             ] ) )
         {
-            throw new Exception(
-                "TESTING: content type doesn't exist in File::mimeExtensions. ".
+            echo "TESTING: content type doesn't exist in File::mimeExtensions. ".
                 "You may want to add it. This exception is safe to remove.\n".
-                "Filename: $filename, Content-Type: $contentType" );
+                "Filename: $filename, Content-Type: $contentType";
+            echo "\nPress [ENTER] to continue...";
+            fgetc( STDIN );
         }
         // END @TODO
 

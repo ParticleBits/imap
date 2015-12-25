@@ -139,6 +139,7 @@ class File
         "application/x-javascript" => "js",
         "application/x-msword" => "doc",
         "application/x-php" => "php",
+        "application/x-shockwave-flash" => "swf",
         "application/x-zip-compressed" => "zip",
         "application/xml" => "xml",
         "application/zip" => "zip",
