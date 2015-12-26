@@ -301,9 +301,8 @@ class Mailbox
         // Try to store the character-set from the content type.
         // This will probably only exist on text/plain parts.
         if ( $headers->has( 'content-type' ) ) {
-            $messageInfo->charset = $headers
-                ->get( 'content-type' )
-                ->getParameter( 'charset' );
+            $contentType = $this->getSingleHeader( $headers, 'content-type' );
+            $messageInfo->charset = $contentType->getParameter( 'charset' );
         }
 
         // Add in the flags
@@ -414,19 +413,6 @@ class Mailbox
         $partNum = 1;
 
         foreach ( $messageInfo->message as $part ) {
-            //$partHead = $part->getHeaders();
-            //$contentType = ( $partHead->has( 'content-type' ) )
-            //    ? strtolower( $partHead->get( 'content-type' )->getType() )
-            //    : NULL;
-
-            // Check to see if this message is a container for sub-parts.
-            // If it is we want to process those subparts.
-            //if ( $contentType === 'message/rfc822' ) {
-            //    $part = new Part([
-            //        'raw' => $part->getContent()
-            //    ]);
-            //}
-
             $part->partNum = $partNum++;
             $this->processPart( $message, $part );
         }
@@ -696,6 +682,17 @@ class Mailbox
         }
 
         return $data;
+    }
+
+    private function getSingleHeader( $headers, $key )
+    {
+        $header = $headers->get( $key );
+
+        if ( count( $header ) > 1 ) {
+            return current( $header );
+        }
+
+        return $header;
     }
 
     public function debug( $message )
