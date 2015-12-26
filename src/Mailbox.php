@@ -468,10 +468,6 @@ class Mailbox
 
     protected function processPart( Message &$message, Part $part )
     {
-        $textTypes = [
-            Mime::TYPE_TEXT,
-            Mime::TYPE_HTML
-        ];
         $headers = $part->getHeaders();
         $contentType = $part->getHeaderField( 'content-type' );
 
@@ -481,7 +477,7 @@ class Mailbox
         // so if that's the content type then skip out.
         if ( $headers->has( 'x-attachment-id' )
             || $headers->has( 'content-disposition' )
-            && ! in_array( $contentType, $textTypes )
+            && ! $this->isTextType( $contentType )
             && ! $contentType === Mime::MESSAGE_RFC822 )
         {
             $this->processAttachment( $message, $part );
@@ -495,20 +491,9 @@ class Mailbox
 
     protected function processContent( Message &$message, Part $part )
     {
-        $textTypes = [
-            Mime::TYPE_TEXT,
-            Mime::TYPE_HTML
-        ];
-        $multipartTypes = [
-            Mime::MESSAGE_RFC822,
-            Mime::MULTIPART_MIXED,
-            Mime::MULTIPART_RELATED,
-            Mime::MULTIPART_RELATIVE,
-            Mime::MULTIPART_ALTERNATIVE
-        ];
         $contentType = strtolower( $part->getHeaderField( 'content-type' ) );
 
-        if ( in_array( $contentType, $multipartTypes ) ) {
+        if ( $this->isMultipartType( $contentType ) ) {
             $boundary = $part->getHeaderField( 'content-type', 'boundary' );
 
             if ( $boundary ) {
@@ -536,7 +521,7 @@ class Mailbox
                 $this->processContent( $message, $wrappedPart );
             }
         }
-        elseif ( in_array( $contentType, $textTypes ) ) {
+        elseif ( $this->isTextType( $contentType ) ) {
             $this->processTextContent(
                 $message,
                 $contentType,
@@ -544,19 +529,20 @@ class Mailbox
                 $part->getHeaderField( 'content-type', 'charset' ));
         }
         else {
+            echo $part->getContent();exit;
             $this->processAttachment( $message, $part );
         }
     }
 
     protected function processTextContent( Message &$message, $contentType, $content, $charset )
     {
-        if ( $contentType === Mime::TYPE_TEXT ) {
+        if ( $contentType === Mime::TYPE_HTML ) {
+            $message->textHtml .= File::convertEncoding( $content, $charset, 'UTF-8' );
+        }
+        else {
             // Set the charset here if we have one
             $message->charset = $charset;
             $message->textPlain .= File::convertEncoding( $content, $charset, 'UTF-8' );
-        }
-        elseif ( $contentType === Mime::TYPE_HTML ) {
-            $message->textHtml .= File::convertEncoding( $content, $charset, 'UTF-8' );
         }
     }
 
@@ -696,8 +682,11 @@ class Mailbox
 
         if ( is_null( $data ) ) {
             if ( $failOnNoEncode === TRUE ) {
+                $decoded = base64_decode( $content, TRUE );
+                $data = $decoded ?: $content;
                 echo "Missing Content-Transfer-Encoding header. Unsure about how to decode.";
                 print_r( $headers );
+                echo $data, "\n\n";
                 echo "\nPress [ENTER] to continue...";
                 fgetc( STDIN );
             }
@@ -709,6 +698,29 @@ class Mailbox
         }
 
         return $data;
+    }
+
+    private function isMultipartType( $contentType )
+    {
+        return in_array(
+            $contentType, [
+                Mime::MESSAGE_RFC822,
+                Mime::MULTIPART_MIXED,
+                Mime::MULTIPART_REPORT,
+                Mime::MULTIPART_RELATED,
+                Mime::MULTIPART_RELATIVE,
+                Mime::MULTIPART_ALTERNATIVE
+            ]);
+    }
+
+    private function isTextType( $contentType )
+    {
+        return in_array(
+            $contentType, [
+                Mime::TYPE_TEXT,
+                Mime::TYPE_HTML,
+                Mime::MESSAGE_DELIVERY_STATUS
+            ]);
     }
 
     private function getSingleHeader( $headers, $key )
