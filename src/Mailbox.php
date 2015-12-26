@@ -469,7 +469,9 @@ class Mailbox
     protected function processPart( Message &$message, Part $part )
     {
         $headers = $part->getHeaders();
-        $contentType = $part->getHeaderField( 'content-type' );
+        $contentType = ( $headers->has( 'content-type' ) )
+            ? $part->getHeaderField( 'content-type' )
+            : NULL;
 
         // If it's a file attachment we want to process all of
         // the attachments and save them to $message->attachments.
@@ -491,7 +493,10 @@ class Mailbox
 
     protected function processContent( Message &$message, Part $part )
     {
-        $contentType = strtolower( $part->getHeaderField( 'content-type' ) );
+        $headers = $part->getHeaders();
+        $contentType = ( $headers->has( 'content-type' ) )
+            ? strtolower( $part->getHeaderField( 'content-type' ) )
+            : NULL;
 
         if ( $this->isMultipartType( $contentType ) ) {
             $boundary = $part->getHeaderField( 'content-type', 'boundary' );
@@ -521,12 +526,16 @@ class Mailbox
                 $this->processContent( $message, $wrappedPart );
             }
         }
-        elseif ( $this->isTextType( $contentType ) ) {
+        elseif ( $this->isTextType( $contentType )
+            || ! $contentType )
+        {
             $this->processTextContent(
                 $message,
                 $contentType,
                 self::convertContent( $part->getContent(), $part->getHeaders() ),
-                $part->getHeaderField( 'content-type', 'charset' ));
+                ( $contentType
+                    ? $part->getHeaderField( 'content-type', 'charset' )
+                    : 'US-ASCII' ));
         }
         else {
             $this->processAttachment( $message, $part );
