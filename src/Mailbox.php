@@ -60,9 +60,9 @@ class Mailbox
         $this->debugMode = $debugMode;
         $this->imapPassword = $password;
         $this->imapFolder = ( $folder ?: 'INBOX' );
-        // 1/10th of the PHP memory limit
+        // 1/5th of the PHP memory limit
         $this->memoryLimit = $this->getMemoryLimit();
-        $this->messageSizeLimit = $this->memoryLimit / 10;
+        $this->messageSizeLimit = $this->memoryLimit / 5;
 
         if ( $attachmentsDir ) {
             if ( ! is_dir( $attachmentsDir ) ) {
