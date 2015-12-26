@@ -727,6 +727,7 @@ class Mailbox
             $contentType, [
                 Mime::TYPE_TEXT,
                 Mime::TYPE_HTML,
+                Mime::TYPE_ENRICHED,
                 Mime::MESSAGE_DELIVERY_STATUS
             ]);
     }
