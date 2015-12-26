@@ -576,20 +576,27 @@ class Mailbox
 
         // Certain mime types don't provide name info but we can try
         // to infer it from the mime type.
-        if ( ! $filename ) {
-            if ( $headers->has( 'content-id' ) ) {
-                $filename = trim( $part->getHeaderField( 'content-id' ), " <>" );
-            }
-            elseif ( $headers->has( 'x-attachment-id' ) ) {
-                $filename = trim( $part->getHeaderField( 'x-attachment-id' ), " <>" );
-            }
-            elseif ( $contentType === 'text/calendar' ) {
-                $filename = 'event.ics';
-            }
+        if ( ! $filename && $headers->has( 'content-id' ) ) {
+            $filename = trim( $part->getHeaderField( 'content-id' ), " <>" );
+        }
+
+        if ( ! $filename && $headers->has( 'x-attachment-id' ) ) {
+            $filename = trim( $part->getHeaderField( 'x-attachment-id' ), " <>" );
+        }
+
+        // Content-Location can be the URL path to a file. If this exists
+        // then try to get the filename from this path.
+        if ( ! $filename && $headers->has( 'content-location' ) ) {
+            $filename = basename( $part->getHeaderField( 'content-location' ) );
+        }
+
+        // If it's a calendar event then let's give it a nice name
+        if ( ! $filename && $contentType === 'text/calendar' ) {
+            $filename = 'event.ics';
+        }
             
-            if ( ! $filename ) {
-                $filename = $name;
-            }
+        if ( ! $filename ) {
+            $filename = $name;
         }
 
         if ( ! $filename ) {
