@@ -13,10 +13,11 @@ if ( ! file_exists( __DIR__ . '/secret.ini' ) ) {
     file_put_contents(
         __DIR__ . '/secret.ini',
         sprintf(
-            "%s =\n%s =\n%s =",
+            "%s =\n%s =\n%s =\n%s =",
             "email",
             "password",
-            "folder"
+            "folder",
+            "startfrom"
         ));
     echo "Please edit the contents of secret.ini\n";
     exit;
@@ -42,11 +43,11 @@ if ( isset( $argv, $argv[ 1 ] ) && $argv[ 1 ] == 'ps' ):
 endif;
 
 $index = 1;
-$startFrom = 600;
 $config = parse_ini_file( __DIR__ .'/secret.ini' );
 $email = ( isset( $config[ 'email' ] ) ) ? $config[ 'email' ] : "";
 $folder = ( isset( $config[ 'folder' ] ) ) ? $config[ 'folder' ] : "";
 $password = ( isset( $config[ 'password' ] ) ) ? $config[ 'password' ] : "";
+$startFrom = ( isset( $config[ 'startfrom' ] ) ) ? $config[ 'startfrom' ] : 0;
 $mailbox = new \Pb\Imap\Mailbox(
     "imap.gmail.com",
     $email,

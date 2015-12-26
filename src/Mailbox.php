@@ -671,9 +671,9 @@ class Mailbox
     {
         $data = NULL;
 
-        if ( $headers->has( 'contentTransferEncoding' ) ) {
+        if ( $headers->has( 'content-transfer-encoding' ) ) {
             $encoding = $headers
-                ->get( 'contentTransferEncoding' )
+                ->get( 'content-transfer-encoding' )
                 ->getFieldValue();
 
             if ( $encoding === 'base64' ) {
@@ -702,8 +702,10 @@ class Mailbox
                 fgetc( STDIN );
             }
 
-            // Default behavior is to base64 decode the content
-            $data = base64_decode( $content );
+            // Depending on file extension, we may need to base64_decode
+            // the data.
+            $decoded = base64_decode( $content, TRUE );
+            $data = $decoded ?: $content;
         }
 
         return $data;
