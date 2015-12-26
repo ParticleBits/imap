@@ -529,7 +529,6 @@ class Mailbox
                 $part->getHeaderField( 'content-type', 'charset' ));
         }
         else {
-            echo $part->getContent();exit;
             $this->processAttachment( $message, $part );
         }
     }
