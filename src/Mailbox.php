@@ -259,6 +259,7 @@ class Mailbox
      *   ]
      *
      * @param integer $id
+     * @throws MessageSizeLimitException
      * @return stdClass
      */
     public function getMessageInfo( $id )
