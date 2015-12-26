@@ -128,6 +128,8 @@ class File
         "application/rtf" => "rtf",
         "application/vnd.ms-excel" => "xls",
         "application/vnd.ms-powerpoint" => "ppt",
+        "application/vnd.ms-publisher" => "pub",
+        "application/vnd.ms-word" => "doc",
         "application/vnd.ms-xpsdocument" => "xps",
         "application/vnd.openxmlformats-officedocument.presentationml.presentation" => "pptx",
         "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" => "xlsx",
