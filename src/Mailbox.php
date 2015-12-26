@@ -288,9 +288,21 @@ class Mailbox
         // Add the headers. This could throw exceptions during the
         // header parsing that we want to catch.
         foreach ( $headerMap as $field => $key ) {
-            $messageInfo->headers->$key = ( $headers->has( $field ) )
-                ? $headers->get( $field )
-                : NULL;
+            if ( ! isset( $messageInfo->headers->$key ) ) {
+                $messageInfo->headers->$key = NULL;
+            }
+
+            if ( $headers->has( $field ) ) {
+                // These exceptions could be where a ReplyTo header
+                // exists along with a Reply-To. The former is invalid
+                // and will throw an exception.
+                try {
+                    $header = $headers->get( $field );
+                    $messageInfo->headers->$key = $header;
+                }
+                catch ( Exception $e ) {}
+            }
+
             // We only want one in case, say, subject came in twice
             if ( count( $messageInfo->headers->$key ) > 1 ) {
                 $messageInfo->headers->$key =
