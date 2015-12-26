@@ -42,7 +42,7 @@ if ( isset( $argv, $argv[ 1 ] ) && $argv[ 1 ] == 'ps' ):
 endif;
 
 $index = 1;
-$startFrom = 200;
+$startFrom = 311;
 $config = parse_ini_file( __DIR__ .'/secret.ini' );
 $email = ( isset( $config[ 'email' ] ) ) ? $config[ 'email' ] : "";
 $folder = ( isset( $config[ 'folder' ] ) ) ? $config[ 'folder' ] : "";

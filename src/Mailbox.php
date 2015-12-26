@@ -466,9 +466,12 @@ class Mailbox
 
         // If it's a file attachment we want to process all of
         // the attachments and save them to $message->attachments.
+        // RFC822 parts are almost ALWAYS wrapping something else
+        // so if that's the content type then skip out.
         if ( $headers->has( 'x-attachment-id' )
             || $headers->has( 'content-disposition' )
-            && ! in_array( $contentType, $textTypes ) )
+            && ! in_array( $contentType, $textTypes )
+            && ! $contentType === Mime::MESSAGE_RFC822 )
         {
             $this->processAttachment( $message, $part );
         }
