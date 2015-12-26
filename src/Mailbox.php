@@ -492,6 +492,7 @@ class Mailbox
             Mime::MESSAGE_RFC822,
             Mime::MULTIPART_MIXED,
             Mime::MULTIPART_RELATED,
+            Mime::MULTIPART_RELATIVE,
             Mime::MULTIPART_ALTERNATIVE
         ];
         $contentType = strtolower( $part->getHeaderField( 'content-type' ) );
