@@ -40,12 +40,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/ParticleBits/zend-mail.git",
-                "reference": "c025e1aa6a0aa6477a98a6f39513ba246ebfd095"
+                "reference": "d344510df379340b99dab24605561110cdf4f02f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ParticleBits/zend-mail/zipball/c025e1aa6a0aa6477a98a6f39513ba246ebfd095",
-                "reference": "c025e1aa6a0aa6477a98a6f39513ba246ebfd095",
+                "url": "https://api.github.com/repos/ParticleBits/zend-mail/zipball/d344510df379340b99dab24605561110cdf4f02f",
+                "reference": "d344510df379340b99dab24605561110cdf4f02f",
                 "shasum": ""
             },
             "require": {
@@ -94,7 +94,7 @@
             "support": {
                 "source": "https://github.com/ParticleBits/zend-mail/tree/master"
             },
-            "time": "2015-12-25 17:42:31"
+            "time": "2015-12-26 22:34:39"
         },
         {
             "name": "particlebits/zend-mime",

@@ -136,6 +136,7 @@ class File
         "application/vnd.openxmlformats-officedocument.wordprocessingml.document" => "docx",
         "application/vnd.oasis.opendocument.text" => "odt",
         "application/x-compress" => "zip",
+        "application/x-gzip" => "gz",
         "application/x-httpd-php" => "php",
         "application/x-font-ttf" => "ttf",
         "application/x-javascript" => "js",
