@@ -12,7 +12,8 @@ use stdClass
   , Pb\Imap\Attachment
   , Zend\Mail\Storage\Part
   , RecursiveIteratorIterator as Iterator
-  , Zend\Mail\Exception\InvalidArgumentException;
+  , Zend\Mail\Exception\InvalidArgumentException
+  , Pb\Imap\Exceptions\MessageSizeLimit as MessageSizeLimitException;
 
 /**
  * Author of this library:
@@ -30,6 +31,8 @@ class Mailbox
     protected $imapOptions = 0;
     protected $imapRetriesNum = 0;
 
+    private $memoryLimit = 0;
+    private $messageSizeLimit;
     private $debugMode = FALSE;
 
     // Internal reference to IMAP connection
@@ -57,6 +60,9 @@ class Mailbox
         $this->debugMode = $debugMode;
         $this->imapPassword = $password;
         $this->imapFolder = ( $folder ?: 'INBOX' );
+        // 1/10th of the PHP memory limit
+        $this->memoryLimit = $this->getMemoryLimit();
+        $this->messageSizeLimit = $this->memoryLimit / 10;
 
         if ( $attachmentsDir ) {
             if ( ! is_dir( $attachmentsDir ) ) {
@@ -264,11 +270,17 @@ class Mailbox
         $messageInfo->flags = new stdClass();
         $messageInfo->headers = new stdClass();
 
+        // Check if the filesize will exceed our memory limit. Since
+        // decoding the message explodes new lines, it could vastly
+        // overuse memory.
+        $messageSize = $this->getImapStream()->getSize( $id );
+        $this->checkMessageSize( $messageSize );
+
         // Get the message info
         $message = $this->getImapStream()->getMessage( $id );
         // Store some internal properties
         $messageInfo->message = $message;
-        $messageInfo->size = $this->getImapStream()->getSize( $id );
+        $messageInfo->size = $messageSize;
         $messageInfo->uid = $this->getImapStream()->getUniqueId( $id );
 
         // Use this to lookup the headers
@@ -705,6 +717,34 @@ class Mailbox
         }
 
         return $header;
+    }
+
+    private function getMemoryLimit()
+    {
+        $val = trim( ini_get( 'memory_limit' ) );
+        $last = strtolower( $val[ strlen( $val ) - 1 ] );
+
+        switch ( $last ) {
+            // The 'G' modifier is available since PHP 5.1.0
+            case 'g':
+                $val *= 1024;
+            case 'm':
+                $val *= 1024;
+            case 'k':
+                $val *= 1024;
+        }
+
+        return $val;
+    }
+
+    private function checkMessageSize( $size )
+    {
+        if ( $size > $this->messageSizeLimit ) {
+            throw new MessageSizeLimitException(
+                $this->messageSizeLimit,
+                $size,
+                $this->memoryLimit );
+        }
     }
 
     public function debug( $message )
