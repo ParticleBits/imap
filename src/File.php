@@ -147,6 +147,7 @@ class File
         "audio/mp4" => "mp4a",
         "audio/mpeg" => "mpga",
         "audio/ogg" => "ogg",
+        "audio/wav" => "wav",
         "audio/x-wav" => "wav",
         "image/bmp" => "bmp",
         "image/gif" => "gif",
