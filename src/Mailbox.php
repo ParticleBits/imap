@@ -9,6 +9,7 @@ use stdClass
   , Zend\Mime\Mime
   , Pb\Imap\Message
   , Zend\Mime\Decode
+  , Zend\Mail\Storage
   , Pb\Imap\Attachment
   , Zend\Mail\Storage\Part
   , RecursiveIteratorIterator as Iterator
@@ -177,21 +178,21 @@ class Mailbox
      * "joey smith") must be quoted. Results will match all criteria entries.
      *
      *   ALL - return all messages matching the rest of the criteria
-     *   ANSWERED - match messages with the \\ANSWERED flag set
+     *   ANSWERED - match messages with the \Answered flag set
      *   BCC "string" - match messages with "string" in the Bcc: field
      *   BEFORE "date" - match messages with Date: before "date"
      *   BODY "string" - match messages with "string" in the body of the message
      *   CC "string" - match messages with "string" in the Cc: field
      *   DELETED - match deleted messages
-     *   FLAGGED - match messages with the \\FLAGGED (sometimes referred to as
+     *   FLAGGED - match messages with the \Flagged (sometimes referred to as
      *     Important or Urgent) flag set
      *   FROM "string" - match messages with "string" in the From: field
      *   KEYWORD "string" - match messages with "string" as a keyword
      *   NEW - match new messages
      *   OLD - match old messages
      *   ON "date" - match messages with Date: matching "date"
-     *   RECENT - match messages with the \\RECENT flag set
-     *   SEEN - match messages that have been read (the \\SEEN flag is set)
+     *   RECENT - match messages with the \Recent flag set
+     *   SEEN - match messages that have been read (the \Seen flag is set)
      *   SINCE "date" - match messages with Date: after "date"
      *   SUBJECT "string" - match messages with "string" in the Subject:
      *   TEXT "string" - match messages with text "string"
@@ -209,6 +210,15 @@ class Mailbox
         $messageIds = $this->getImapStream()->search([ $criteria ], $uid );
 
         return $messageIds ?: [];
+    }
+
+    /**
+     * Returns an array of UIDs indexed by message number.
+     * @return array Unique IDs
+     */
+    public function getUniqueIds()
+    {
+        return $this->getImapStream()->getUniqueId();
     }
 
     /**
@@ -333,12 +343,12 @@ class Mailbox
         // Add in the flags
         $flags = $message->getFlags();
         $flagMap = [
-            '\Seen' => 'seen',
-            '\Draft' => 'draft',
-            '\Recent' => 'recent',
-            '\Deleted' => 'deleted',
-            '\Flagged' => 'flagged',
-            '\Answered' => 'answered'
+            Storage::FLAG_SEEN => 'seen',
+            Storage::FLAG_DRAFT => 'draft',
+            Storage::FLAG_RECENT => 'recent',
+            Storage::FLAG_DELETED => 'deleted',
+            Storage::FLAG_FLAGGED => 'flagged',
+            Storage::FLAG_ANSWERED => 'answered'
         ];
 
         foreach ( $flagMap as $field => $key ) {
