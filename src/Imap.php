@@ -2,7 +2,7 @@
 
 namespace Pb\Imap;
 
-use Exception\RuntimeException
+use RuntimeException
   , Zend\Mail\Storage\Imap as ZendImap;
 
 class Imap extends ZendImap
@@ -12,7 +12,7 @@ class Imap extends ZendImap
      *
      * @param \Zend\Mail\Storage\Folder|string $globalName
      *   global name of folder or instance for subfolder
-     * @throws Exception\RuntimeException
+     * @throws RuntimeException
      * @return NULL|array
      */
     public function examineFolder( $globalName )
@@ -34,7 +34,7 @@ class Imap extends ZendImap
      *
      * @param \Zend\Mail\Storage\Folder|string $globalName
      *   global name of folder or instance for subfolder
-     * @throws Exception\RuntimeException
+     * @throws RuntimeException
      * @return NULL|array
      */
     public function selectFolder( $globalName )
