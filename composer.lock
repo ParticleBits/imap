@@ -102,12 +102,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/ParticleBits/zend-mime.git",
-                "reference": "fa0d9d84d58497f8962b98a6eea74193cc7b4c52"
+                "reference": "88c86bfd9467d62fadfe15b44e12c6eaac406e3b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ParticleBits/zend-mime/zipball/fa0d9d84d58497f8962b98a6eea74193cc7b4c52",
-                "reference": "fa0d9d84d58497f8962b98a6eea74193cc7b4c52",
+                "url": "https://api.github.com/repos/ParticleBits/zend-mime/zipball/88c86bfd9467d62fadfe15b44e12c6eaac406e3b",
+                "reference": "88c86bfd9467d62fadfe15b44e12c6eaac406e3b",
                 "shasum": ""
             },
             "require": {
@@ -151,7 +151,7 @@
             "support": {
                 "source": "https://github.com/ParticleBits/zend-mime/tree/master"
             },
-            "time": "2015-12-26 22:47:22"
+            "time": "2015-12-27 03:59:16"
         },
         {
             "name": "zendframework/zend-crypt",

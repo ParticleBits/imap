@@ -713,6 +713,7 @@ class Mailbox
     {
         return in_array(
             $contentType, [
+                Mime::TYPE_XML,
                 Mime::TYPE_TEXT,
                 Mime::TYPE_HTML,
                 Mime::TYPE_ENRICHED,
