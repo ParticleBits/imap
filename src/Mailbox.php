@@ -620,28 +620,6 @@ class Mailbox
         // Try to add an extension if it's missing one
         File::addExtensionIfMissing( $filename, $contentType );
 
-        // @TODO REMOVE THIS, IT'S FOR TESTING
-        $temp = "unknown";
-        File::addExtensionIfMissing( $temp, $contentType );
-
-        if ( $temp === "unknown"
-            && ! in_array( $contentType, [
-                'text/x-c++',
-                'application/vnd.ms-excel.sheet.macroenabled.12',
-                'application/ms-tnef',
-                'audio/x-aiff',
-                'application/octetstream',
-                'application/vnd.google-apps.photo'
-            ] ) )
-        {
-            echo "TESTING: content type doesn't exist in File::mimeExtensions. ".
-                "You may want to add it. This exception is safe to remove.\n".
-                "Filename: $filename, Content-Type: $contentType";
-            echo "\nPress [ENTER] to continue...";
-            fgetc( STDIN );
-        }
-        // END @TODO
-
         // If we are fortunate enough to get an attachment ID, then
         // use that. Otherwise we want to create on in a deterministic
         // way.
