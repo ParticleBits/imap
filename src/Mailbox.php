@@ -624,7 +624,7 @@ class Mailbox
         }
 
         if ( ! $filename ) {
-            $filename = 'unknown';
+            $filename = 'noname';
         }
 
         // Try to add an extension if it's missing one

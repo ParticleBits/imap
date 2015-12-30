@@ -121,7 +121,6 @@ class File
         "application/octet-stream" => "bin",
         "application/pdf" => "pdf",
         "application/pkcs7-signature" => "p7s",
-        "application/pgp-encrypted" => "pgp",
         "application/pgp-signature" => "asc",
         "application/photoshop" => "psd",
         "application/postscript" => "ps",
