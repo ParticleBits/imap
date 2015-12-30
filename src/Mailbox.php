@@ -9,6 +9,7 @@ use stdClass
   , Zend\Mime\Mime
   , Pb\Imap\Message
   , Zend\Mime\Decode
+  , RuntimeException
   , Zend\Mail\Storage
   , Pb\Imap\Attachment
   , Zend\Mail\Storage\Part
@@ -615,15 +616,6 @@ class Mailbox
         }
 
         if ( ! $filename ) {
-            // @TODO REMOVE AFTER TESTING
-            echo "TESTING: no file name was found in headers.\n".
-            print_r( $headers, TRUE );
-            echo "\nPress [ENTER] to continue...";
-            fgetc( STDIN );
-            // END @TODO
-        }
-
-        if ( ! $filename ) {
             $filename = 'noname';
         }
 
@@ -678,13 +670,9 @@ class Mailbox
 
         if ( is_null( $data ) ) {
             if ( $failOnNoEncode === TRUE ) {
-                $decoded = base64_decode( $content, TRUE );
-                $data = $decoded ?: $content;
-                echo "Missing Content-Transfer-Encoding header. Unsure about how to decode.";
-                print_r( $headers );
-                echo $data, "\n\n";
-                echo "\nPress [ENTER] to continue...";
-                fgetc( STDIN );
+                throw new RuntimeException(
+                    "Missing Content-Transfer-Encoding header. ".
+                    "Unsure about how to decode." );
             }
 
             // Depending on file extension, we may need to base64_decode
