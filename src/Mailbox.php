@@ -610,7 +610,7 @@ class Mailbox
         if ( ! $filename && $contentType === 'text/calendar' ) {
             $filename = 'event.ics';
         }
-            
+
         if ( ! $filename ) {
             $filename = $name;
         }
@@ -770,10 +770,5 @@ class Mailbox
                 2 ),
             $message,
             PHP_EOL );
-    }
-
-    public function __destruct()
-    {
-        $this->disconnect();
     }
 }
