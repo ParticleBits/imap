@@ -12,8 +12,8 @@ class Attachment
     public $name;
     public $filename;
     public $filepath;
-    public $origName;
     public $mimeType;
+    public $origName;
     public $origFilename;
 
     // Zend\Mail\Storage\Part
@@ -135,6 +135,27 @@ class Attachment
         $this->checkDirWriteable( $this->fileDatePath );
 
         file_put_contents( $this->filepath, $data );
+    }
+
+    /**
+     * Concert the object to a JSON string.
+     */
+    public function toJson()
+    {
+        return json_encode( $this->toArray() );
+    }
+
+    public function toArray()
+    {
+        return [
+            'id' => $this->id,
+            'name' => $this->name,
+            'filename' => $this->filename,
+            'filepath' => $this->filepath,
+            'mimeType' => $this->mimeType,
+            'origName' => $this->origName,
+            'origFilename' => $this->origFilename
+        ];
     }
 
     private function checkDirWriteable( $dir, $create = TRUE, $permission = 0755 )

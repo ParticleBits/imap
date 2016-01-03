@@ -64,7 +64,9 @@ class Mailbox
         $this->imapFolder = ( $folder ?: 'INBOX' );
         // 1/6th of the PHP memory limit
         $this->memoryLimit = $this->getMemoryLimit();
-        $this->messageSizeLimit = $this->memoryLimit / 6;
+        $this->messageSizeLimit = ( $this->memoryLimit )
+            ? $this->memoryLimit / 6
+            : NULL;
 
         if ( $attachmentsDir ) {
             if ( ! is_dir( $attachmentsDir ) ) {
@@ -634,6 +636,7 @@ class Mailbox
         if ( $this->attachmentsDir ) {
             $attachment->generateFilepath( $message, $this->attachmentsDir );
             $this->debug( "Before writing attachment to disk" );
+echo $attachment->toJson();exit;
             $attachment->saveToFile();
             $this->debug( "After file_put_contents finished" );
         }
@@ -725,6 +728,10 @@ class Mailbox
         $val = trim( ini_get( 'memory_limit' ) );
         $last = strtolower( $val[ strlen( $val ) - 1 ] );
 
+        if ( $val == -1 ) {
+            return NULL;
+        }
+
         switch ( $last ) {
             // The 'G' modifier is available since PHP 5.1.0
             case 'g':
@@ -740,7 +747,7 @@ class Mailbox
 
     private function checkMessageSize( $size )
     {
-        if ( $size > $this->messageSizeLimit ) {
+        if ( $this->messageSizeLimit && $size > $this->messageSizeLimit ) {
             throw new MessageSizeLimitException(
                 $this->messageSizeLimit,
                 $size,
