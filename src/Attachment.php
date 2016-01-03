@@ -22,6 +22,7 @@ class Attachment
     // Created during generate attachment file paths
     protected $baseDir;
     protected $fileSysName;
+    protected $fileSysPath;
     protected $fileDatePath;
 
     public function __construct( Part $part )
@@ -85,6 +86,7 @@ class Attachment
             '/_+/' => '_',
             '/(^_)|(_$)/' => ''
         ];
+        $timestamp = strtotime( $message->date );
         $fileSysName = preg_replace(
             '~[\\\\/]~',
             '',
@@ -94,20 +96,21 @@ class Attachment
                 $this->filename
             ));
         $this->baseDir = $baseDir;
-        // Truncate the sys name if it's too long. This will throw an
-        // error in file_put_contents.
+        // Truncate the system name if it's too long. This will throw
+        // an error in file_put_contents.
         $fileSysName = substr( $fileSysName, 0, 250 );
         // Create the YYYY/MM directory to put the attachment into
         $this->fileDatePath = sprintf(
-            "%s%s%s%s%s",
-            $this->baseDir,
+            "%s%s%s",
+            date( 'Y', $timestamp ),
             DIRECTORY_SEPARATOR,
-            date( 'Y', strtotime( $message->date ) ),
-            DIRECTORY_SEPARATOR,
-            date( 'm', strtotime( $message->date ) ));
+            date( 'm', $timestamp ));
         $this->filepath = $this->fileDatePath
             . DIRECTORY_SEPARATOR
             . $fileSysName;
+        $this->fileSysPath = $this->baseDir
+            . DIRECTORY_SEPARATOR
+            . $this->filepath;
         $this->fileSysName = $fileSysName;
     }
 
@@ -134,7 +137,7 @@ class Attachment
         $this->checkDirWriteable( $this->baseDir );
         $this->checkDirWriteable( $this->fileDatePath );
 
-        file_put_contents( $this->filepath, $data );
+        file_put_contents( $this->fileSysPath, $data );
     }
 
     /**
