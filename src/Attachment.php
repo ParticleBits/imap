@@ -123,7 +123,7 @@ class Attachment
             throw new Exception( 'This attachment has no ID!' );
         }
 
-        if ( ! $this->filepath || ! $this->fileDatePath ) {
+        if ( ! $this->fileSysPath ) {
             throw new Exception( 'This attachment has no file path!' );
         }
 
@@ -132,10 +132,11 @@ class Attachment
             $this->part->getContent(),
             $this->part->getHeaders(),
             $failOnNoEncode = TRUE );
+        $dateDir = $this->baseDir . DIRECTORY_SEPARATOR . $this->fileDatePath;
 
         // Check if base directory exists and is writable
         $this->checkDirWriteable( $this->baseDir );
-        $this->checkDirWriteable( $this->fileDatePath );
+        $this->checkDirWriteable( $dateDir );
 
         file_put_contents( $this->fileSysPath, $data );
     }
