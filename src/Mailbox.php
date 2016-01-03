@@ -636,11 +636,11 @@ class Mailbox
         if ( $this->attachmentsDir ) {
             $attachment->generateFilepath( $message, $this->attachmentsDir );
             $this->debug( "Before writing attachment to disk" );
-echo $attachment->toJson();exit;
             $attachment->saveToFile();
             $this->debug( "After file_put_contents finished" );
         }
 
+        $message->addAttachment( $attachment );
         $this->debug( "New attachment created" );
     }
 
