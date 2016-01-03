@@ -130,8 +130,7 @@ class Attachment
         // Get the content into a decoded format
         $data = Mailbox::convertContent(
             $this->part->getContent(),
-            $this->part->getHeaders(),
-            $failOnNoEncode = TRUE );
+            $this->part->getHeaders() );
         $dateDir = $this->baseDir . DIRECTORY_SEPARATOR . $this->fileDatePath;
 
         // Check if base directory exists and is writable
