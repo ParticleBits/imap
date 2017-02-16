@@ -42,8 +42,10 @@ class Attachment
         }
 
         $headers = $this->part->getHeaders();
-        $this->id = ( $headers->has( 'x-attachment-id' ) )
-            ? trim( $this->part->getHeaderField( 'x-attachment-id' ), " <>" )
+        $hasAttachmentId = $headers->has( 'x-attachment-id' );
+        $attachmentId = trim( $this->part->getHeaderField( 'x-attachment-id' ), " <>" );
+        $this->id = ( $hasAttachmentId && $attachmentId )
+            ? $attachmentId
             : self::generateAttachmentId( $message, $this->part->partNum );
     }
 
