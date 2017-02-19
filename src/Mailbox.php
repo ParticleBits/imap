@@ -519,6 +519,7 @@ class Mailbox
                     $part->getContent(),
                     $boundary );
                 $subPartNum = 1;
+                $subStructs = ( $subStructs ) ?: [];
 
                 foreach ( $subStructs as $subStruct ) {
                     $subPart = new Part([
