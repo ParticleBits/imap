@@ -262,6 +262,8 @@ class Mailbox
      *   headers: [
      *       to: Recipient(s), string
      *       from: Who sent it, string
+     *       cc: CC recipient(s), string
+     *       bcc: BCC recipient(s), string
      *       id: Unique identifier, string
      *       date: When it was sent, string
      *       replyTo: Who should be replied to
@@ -301,6 +303,8 @@ class Mailbox
         $headers = $message->getHeaders();
         $headerMap = [
             'to' => 'to',
+            'cc' => 'cc',
+            'bcc' => 'bcc',
             'from' => 'from',
             'date' => 'date',
             'message-id' => 'id',
@@ -412,6 +416,9 @@ class Mailbox
             : '';
         $message->cc = ( isset( $head->cc ) )
             ? $this->getAddresses( $head, 'cc' )
+            : [];
+        $message->bcc = ( isset( $head->bcc ) )
+            ? $this->getAddresses( $head, 'bcc' )
             : [];
         $message->replyTo = ( isset( $head->replyTo ) )
             ? $this->getAddresses( $head, 'replyTo' )
