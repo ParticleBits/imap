@@ -33,12 +33,21 @@ class Mailbox
     protected $imapOptions = 0;
     protected $imapRetriesNum = 0;
 
+    private $options;
     private $memoryLimit = 0;
     private $messageSizeLimit;
-    private $debugMode = FALSE;
+    // Default options
+    private $defaults = [
+        'debug_mode' => FALSE,
+        'skip_attachments' => FALSE
+    ];
 
     // Internal reference to IMAP connection
     protected $imapStream;
+
+    // Option constants
+    const OPT_DEBUG_MODE = 'debug_mode';
+    const OPT_SKIP_ATTACHMENTS = 'skip_attachments';
 
     /**
      * Sets up a new mailbox object with the IMAP credentials to connect.
@@ -47,7 +56,7 @@ class Mailbox
      * @param string $password
      * @param string $folder
      * @param string $attachmentsDir
-     * @param bool $debugMode
+     * @param array $options
      */
     function __construct(
         $hostname,
@@ -55,11 +64,10 @@ class Mailbox
         $password,
         $folder = 'INBOX',
         $attachmentsDir = NULL,
-        $debugMode = FALSE )
+        $options = [] )
     {
         $this->imapLogin = $login;
         $this->imapHost = $hostname;
-        $this->debugMode = $debugMode;
         $this->imapPassword = $password;
         $this->imapFolder = ( $folder ?: 'INBOX' );
         // 1/6th of the PHP memory limit
@@ -75,6 +83,10 @@ class Mailbox
 
             $this->attachmentsDir = rtrim( realpath( $attachmentsDir ), '\\/' );
         }
+
+        // Process the options
+        $options = array_intersect_key( $options, $this->defaults );
+        $this->options = array_merge( $this->defaults, $options );
     }
 
     /**
@@ -449,6 +461,7 @@ class Mailbox
                 $messageInfo->message->getContent(),
                 $messageInfo->charset,
                 'UTF-8' );
+
             return $message;
         }
 
@@ -577,6 +590,11 @@ class Mailbox
 
     protected function processAttachment( Message &$message, Part $part )
     {
+        // If attachments are disabled, skip out now
+        if ( $this->options[ self::OPT_SKIP_ATTACHMENTS ] === TRUE ) {
+            return;
+        }
+
         $name = NULL;
         $filename = NULL;
         $contentType = NULL;
@@ -765,7 +783,7 @@ class Mailbox
 
     public function debug( $message )
     {
-        if ( ! $this->debugMode ) {
+        if ( ! $this->options[ self::OPT_DEBUG_MODE ] ) {
             return;
         }
 

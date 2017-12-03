@@ -53,8 +53,9 @@ $mailbox = new \Pb\Imap\Mailbox(
     $email,
     $password,
     $folder,
-    __DIR__ .'/attachments',
-    TRUE );
+    __DIR__ .'/attachments', [
+        \Pb\Imap\Mailbox::OPT_DEBUG_MODE => TRUE
+    ]);
 $mailbox->debug( "Starting search" );
 $messageIds = $mailbox->search( 'ALL' );
 $count = count( $messageIds );
@@ -65,6 +66,7 @@ foreach ( $messageIds as $messageId ) {
         $index++;
         continue;
     }
+
     $mailbox->debug( "Fetching message $index of $count" );
     // Pull the contents of the message
     $message = $mailbox->getMessage( $messageId );

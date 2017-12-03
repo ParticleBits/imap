@@ -36,8 +36,9 @@ $mailbox = new \Pb\Imap\Mailbox(
     "something@gmail.com",
     "**********",
     "INBOX",
-    __DIR__ .'/attachments',
-    TRUE );
+    __DIR__ .'/attachments', [
+        \Pb\Imap\Mailbox::OPT_DEBUG_MODE => TRUE
+    ]);
 $messageIds = $mailbox->searchMailBox( 'ALL' );
 
 foreach ( $messageIds as $messageId ) {
@@ -46,6 +47,16 @@ foreach ( $messageIds as $messageId ) {
     print_r( $message->getAttachments() );
 }
 ```
+
+### Available Options
+
+You can use the following options in the final argument of the
+Mailbox constructor:
+
+ - `OPT_DEBUG_MODE`
+   This will write memory info to the screen
+ - `OPT_SKIP_ATTACHMENTS`
+   Skips downloading message attachments. Useful for saving disk space.
 
 ### Notes
 
