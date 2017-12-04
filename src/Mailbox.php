@@ -141,7 +141,7 @@ class Mailbox
      */
     public function status( $folder = NULL )
     {
-        $info = new stdClass();
+        $info = new stdClass;
         $folder = $folder ?: $this->imapFolder;
         $examine = $this->getImapStream()->examineFolder( $folder );
 
@@ -292,11 +292,11 @@ class Mailbox
     public function getMessageInfo( $id )
     {
         // Set up the new message
-        $messageInfo = new stdClass();
+        $messageInfo = new stdClass;
         $messageInfo->charset = NULL;
         $messageInfo->messageNum = $id;
-        $messageInfo->flags = new stdClass();
-        $messageInfo->headers = new stdClass();
+        $messageInfo->flags = new stdClass;
+        $messageInfo->headers = new stdClass;
 
         // Check if the filesize will exceed our memory limit. Since
         // decoding the message explodes new lines, it could vastly
@@ -384,7 +384,7 @@ class Mailbox
      */
     public function getMessage( $id )
     {
-        $message = new Message();
+        $message = new Message;
         $messageInfo = $this->getMessageInfo( $id );
 
         // Store some common properties
@@ -491,9 +491,9 @@ class Mailbox
         $addresses = [];
 
         if ( isset( $headers->$field ) && count( $headers->$field ) ) {
-             foreach ( $headers->$field->getAddressList() as $address ) {
+            foreach ( $headers->$field->getAddressList() as $address ) {
                 $addresses[] = $address;
-             }
+            }
         }
 
         return $addresses;
@@ -510,8 +510,8 @@ class Mailbox
         // the attachments and save them to $message->attachments.
         // RFC822 parts are almost ALWAYS wrapping something else
         // so if that's the content type then skip out.
-        if ( $headers->has( 'x-attachment-id' )
-            || $headers->has( 'content-disposition' )
+        if ( ( $headers->has( 'x-attachment-id' )
+                || $headers->has( 'content-disposition' ) )
             && ! $this->isTextType( $contentType )
             && ! $contentType === Mime::MESSAGE_RFC822 )
         {
@@ -787,7 +787,7 @@ class Mailbox
             return;
         }
 
-        $date = new \DateTime();
+        $date = new \DateTime;
 
         echo sprintf(
             "[%s] %s MB peak, %s MB real, %s MB cur -- %s%s",
