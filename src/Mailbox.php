@@ -457,10 +457,7 @@ class Mailbox
 
         // If this is NOT a multipart message, store the plain text
         if ( ! $messageInfo->message->isMultipart() ) {
-            $message->textPlain = File::convertEncoding(
-                $messageInfo->message->getContent(),
-                $messageInfo->charset,
-                'UTF-8' );
+            $this->processContent( $message, $messageInfo->message );
 
             return $message;
         }
