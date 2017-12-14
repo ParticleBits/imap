@@ -2,9 +2,9 @@
 
 namespace Pb\Imap;
 
-use Exception
-  , Pb\Imap\Message
-  , Zend\Mail\Storage\Part;
+use Exception;
+use Pb\Imap\Message;
+use Zend\Mail\Storage\Part;
 
 class Attachment
 {

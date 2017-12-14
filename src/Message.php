@@ -28,6 +28,8 @@ class Message
     public $dateString = "";
     public $fromString = "";
     public $fromAddress = "";
+    public $dateReceived = "";
+    public $receivedString = "";
 
     // Reference to IMAP message object
     private $imapMessage;

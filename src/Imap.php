@@ -2,8 +2,8 @@
 
 namespace Pb\Imap;
 
-use RuntimeException
-  , Zend\Mail\Storage\Imap as ZendImap;
+use RuntimeException;
+use Zend\Mail\Storage\Imap as ZendImap;
 
 class Imap extends ZendImap
 {

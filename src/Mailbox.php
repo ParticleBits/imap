@@ -2,20 +2,20 @@
 
 namespace Pb\Imap;
 
-use stdClass
-  , Exception
-  , Pb\Imap\Imap
-  , Pb\Imap\File
-  , Zend\Mime\Mime
-  , Pb\Imap\Message
-  , Zend\Mime\Decode
-  , RuntimeException
-  , Zend\Mail\Storage
-  , Pb\Imap\Attachment
-  , Zend\Mail\Storage\Part
-  , RecursiveIteratorIterator as Iterator
-  , Zend\Mail\Exception\InvalidArgumentException
-  , Pb\Imap\Exceptions\MessageSizeLimit as MessageSizeLimitException;
+use stdClass;
+use Exception;
+use Pb\Imap\Imap;
+use Pb\Imap\File;
+use Zend\Mime\Mime;
+use Pb\Imap\Message;
+use Zend\Mime\Decode;
+use RuntimeException;
+use Zend\Mail\Storage;
+use Pb\Imap\Attachment;
+use Zend\Mail\Storage\Part;
+use RecursiveIteratorIterator as Iterator;
+use Zend\Mail\Exception\InvalidArgumentException;
+use Pb\Imap\Exceptions\MessageSizeLimit as MessageSizeLimitException;
 
 /**
  * Author of this library:
@@ -36,6 +36,7 @@ class Mailbox
     private $options;
     private $memoryLimit = 0;
     private $messageSizeLimit;
+
     // Default options
     private $defaults = [
         'debug_mode' => FALSE,
@@ -324,7 +325,8 @@ class Mailbox
             'reply-to' => 'replyTo',
             'references' => 'references',
             'in-reply-to' => 'inReplyTo',
-            'content-type' => 'contentType'
+            'content-type' => 'contentType',
+            'received' => 'received'
         ];
 
         // Add the headers. This could throw exceptions during the
@@ -396,18 +398,21 @@ class Mailbox
         $message->dateString = ( isset( $head->date ) )
             ? $head->date->getFieldValue()
             : '';
+        $message->receivedString = ( isset( $head->received ) )
+            ? $head->received->getFieldValue()
+            : '';
         $time = ( $message->dateString )
-            ? strtotime(
-                preg_replace(
-                    '/\(.*?\)/',
-                    '',
-                    $message->dateString
-                ))
+            ? strtotime( $this->getCleanDateString( $message->dateString ) )
             : time();
+        $receivedDate = $this->getReceivedDate( $message->receivedString );
+        $receivedTime = ( $receivedDate )
+            ? strtotime( $this->getCleanDateString( $receivedDate ) )
+            : $time;
         $message->date = date( 'Y-m-d H:i:s', $time );
         $message->subject = ( isset( $head->subject ) )
             ? $head->subject->getFieldValue()
             : '';
+        $message->dateReceived = date( 'Y-m-d H:i:s', $receivedTime );
         // Try to get the from address and name
         $from = $this->getAddresses( $head, 'from' );
         $message->fromName = ( $from )
@@ -744,6 +749,25 @@ class Mailbox
         }
 
         return $header;
+    }
+
+    private function getCleanDateString( $string )
+    {
+        return preg_replace( '/\(.*?\)/', '', $string );
+    }
+
+    private function getReceivedDate( $string )
+    {
+        // Work backwards, trying to find a date part
+        $parts = array_reverse( explode( ':', $string ) );
+
+        foreach ( $parts as $part ) {
+            if ( strtotime( $part ) > 0 ) {
+                return $part;
+            }
+        }
+
+        return NULL;
     }
 
     private function getMemoryLimit()
