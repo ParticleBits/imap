@@ -323,10 +323,10 @@ class Mailbox
             'message-id' => 'id',
             'subject' => 'subject',
             'reply-to' => 'replyTo',
+            'received' => 'received',
             'references' => 'references',
             'in-reply-to' => 'inReplyTo',
-            'content-type' => 'contentType',
-            'received' => 'received'
+            'content-type' => 'contentType'
         ];
 
         // Add the headers. This could throw exceptions during the
@@ -348,9 +348,9 @@ class Mailbox
             }
 
             // We only want one in case, say, subject came in twice
-            if ( count( $messageInfo->headers->$key ) > 1 ) {
+            if ( is_a( $messageInfo->headers->$key, 'ArrayIterator' ) ) {
                 $messageInfo->headers->$key =
-                    current( $messageInfo->headers->$key );
+                    $messageInfo->headers->$key->current();
             }
         }
 
@@ -759,7 +759,7 @@ class Mailbox
     private function getReceivedDate( $string )
     {
         // Work backwards, trying to find a date part
-        $parts = array_reverse( explode( ':', $string ) );
+        $parts = array_reverse( explode( ';', $string ) );
 
         foreach ( $parts as $part ) {
             if ( strtotime( $part ) > 0 ) {
