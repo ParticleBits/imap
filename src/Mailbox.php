@@ -492,7 +492,9 @@ class Mailbox
     {
         $addresses = [];
 
-        if ( isset( $headers->$field ) && count( $headers->$field ) ) {
+        if ( isset( $headers->$field )
+            && is_a( $headers->$field, 'ArrayIterator' ) )
+        {
             foreach ( $headers->$field->getAddressList() as $address ) {
                 $addresses[] = $address;
             }
@@ -744,7 +746,7 @@ class Mailbox
     {
         $header = $headers->get( $key );
 
-        if ( count( $header ) > 1 ) {
+        if ( is_a( $header, 'ArrayIterator' ) && count( $header ) > 1 ) {
             return current( $header );
         }
 
@@ -772,24 +774,25 @@ class Mailbox
 
     private function getMemoryLimit()
     {
-        $val = trim( ini_get( 'memory_limit' ) );
-        $last = strtolower( $val[ strlen( $val ) - 1 ] );
+        $val = trim(ini_get('memory_limit'));
 
         if ( $val == -1 ) {
             return NULL;
         }
 
-        switch ( $last ) {
-            // The 'G' modifier is available since PHP 5.1.0
+        $num = intval(substr($val, -1));
+        $last = strtolower($val[strlen($val) - 1]);
+
+        switch ($last) {
             case 'g':
-                $val *= 1024;
+                $num *= 1024;
             case 'm':
-                $val *= 1024;
+                $num *= 1024;
             case 'k':
-                $val *= 1024;
+                $num *= 1024;
         }
 
-        return $val;
+        return $num;
     }
 
     private function checkMessageSize( $size )
