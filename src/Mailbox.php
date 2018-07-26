@@ -408,11 +408,11 @@ class Mailbox
         $receivedTime = ( $receivedDate )
             ? strtotime( $this->getCleanDateString( $receivedDate ) )
             : $time;
-        $message->date = date( 'Y-m-d H:i:s', $time );
+        $message->date = gmdate( 'Y-m-d H:i:s', $time );
         $message->subject = ( isset( $head->subject ) )
             ? $head->subject->getFieldValue()
             : '';
-        $message->dateReceived = date( 'Y-m-d H:i:s', $receivedTime );
+        $message->dateReceived = gmdate( 'Y-m-d H:i:s', $receivedTime );
         // Try to get the from address and name
         $from = $this->getAddresses( $head, 'from' );
         $message->fromName = ( $from )
