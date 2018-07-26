@@ -2,34 +2,32 @@
 
 namespace Pb\Imap;
 
-use Pb\Imap\Attachment;
-
 class Message
 {
     public $id;
     public $to = [];
     public $cc = [];
-    public $uid = "";
+    public $uid = '';
     public $size = 0;
-    public $date = "";
+    public $date = '';
     public $flags = [];
-    public $charset = "";
+    public $charset = '';
     public $headers = [];
-    public $subject = "";
+    public $subject = '';
     public $replyTo = [];
-    public $toString = "";
-    public $fromName = "";
-    public $textHtml = "";
-    public $textPlain = "";
-    public $messageId = "";
-    public $inReplyTo = "";
+    public $toString = '';
+    public $fromName = '';
+    public $textHtml = '';
+    public $textPlain = '';
+    public $messageId = '';
+    public $inReplyTo = '';
     public $messageNum = 0;
-    public $references = "";
-    public $dateString = "";
-    public $fromString = "";
-    public $fromAddress = "";
-    public $dateReceived = "";
-    public $receivedString = "";
+    public $references = '';
+    public $dateString = '';
+    public $fromString = '';
+    public $fromAddress = '';
+    public $dateReceived = '';
+    public $receivedString = '';
 
     // Reference to IMAP message object
     private $imapMessage;
@@ -41,11 +39,12 @@ class Message
 
     /**
      * Store a new attachment to the internal array.
+     *
      * @param Attachment $attachment
      */
-    public function addAttachment( Attachment $attachment )
+    public function addAttachment(Attachment $attachment)
     {
-        $this->attachments[ $attachment->id ] = $attachment;
+        $this->attachments[$attachment->id] = $attachment;
     }
 
     /**
@@ -56,7 +55,7 @@ class Message
         return $this->attachments;
     }
 
-    public function setImapMessage( $imapMessage )
+    public function setImapMessage($imapMessage)
     {
         $this->imapMessage = $imapMessage;
     }
@@ -67,7 +66,8 @@ class Message
     }
 
     /**
-     * Get array of internal HTML links placeholders
+     * Get array of internal HTML links placeholders.
+     *
      * @return array attachmentId => link placeholder
      */
     public function getInternalLinksPlaceholders()
@@ -75,28 +75,28 @@ class Message
         $matchAll = preg_match_all(
             '/=["\'](ci?d:([\w\.%*@-]+))["\']/i',
             $this->textHtml,
-            $matches );
+            $matches);
 
-        if ( $matchAll ) {
-            return array_combine( $matches[ 2 ], $matches[ 1 ] );
+        if ($matchAll) {
+            return array_combine($matches[2], $matches[1]);
         }
 
         return [];
     }
 
-    public function replaceInternalLinks( $baseUri )
+    public function replaceInternalLinks($baseUri)
     {
         $fetchedHtml = $this->textHtml;
-        $baseUri = rtrim( $baseUri, '\\/' ) . '/';
+        $baseUri = rtrim($baseUri, '\\/').'/';
         $placeholders = $this->getInternalLinksPlaceholders();
 
-        foreach ( $placeholders as $attachmentId => $placeholder ) {
-            if ( isset( $this->attachments[ $attachmentId ] ) ) {
-                $basename = basename( $this->attachments[ $attachmentId ]->filePath );
+        foreach ($placeholders as $attachmentId => $placeholder) {
+            if (isset($this->attachments[$attachmentId])) {
+                $basename = basename($this->attachments[$attachmentId]->filePath);
                 $fetchedHtml = str_replace(
                     $placeholder,
-                    $baseUri . $basename,
-                    $fetchedHtml );
+                    $baseUri.$basename,
+                    $fetchedHtml);
             }
         }
 

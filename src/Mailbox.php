@@ -4,22 +4,19 @@ namespace Pb\Imap;
 
 use stdClass;
 use Exception;
-use Pb\Imap\Imap;
-use Pb\Imap\File;
 use Zend\Mime\Mime;
-use Pb\Imap\Message;
 use Zend\Mime\Decode;
 use RuntimeException;
 use Zend\Mail\Storage;
-use Pb\Imap\Attachment;
 use Zend\Mail\Storage\Part;
 use RecursiveIteratorIterator as Iterator;
-use Zend\Mail\Exception\InvalidArgumentException;
 use Pb\Imap\Exceptions\MessageSizeLimit as MessageSizeLimitException;
 
 /**
- * Author of this library:
+ * Author of this library:.
+ *
  * @see https://github.com/particlebits/imap
+ *
  * @author Mike Gioia https://particlebits.com
  */
 class Mailbox
@@ -39,8 +36,8 @@ class Mailbox
 
     // Default options
     private $defaults = [
-        'debug_mode' => FALSE,
-        'skip_attachments' => FALSE
+        'debug_mode' => false,
+        'skip_attachments' => false
     ];
 
     // Internal reference to IMAP connection
@@ -52,6 +49,7 @@ class Mailbox
 
     /**
      * Sets up a new mailbox object with the IMAP credentials to connect.
+     *
      * @param string $hostname
      * @param string $login
      * @param string $password
@@ -59,44 +57,45 @@ class Mailbox
      * @param string $attachmentsDir
      * @param array $options
      */
-    function __construct(
+    public function __construct(
         $hostname,
         $login,
         $password,
         $folder = 'INBOX',
-        $attachmentsDir = NULL,
-        $options = [] )
+        $attachmentsDir = null,
+        $options = [])
     {
         $this->imapLogin = $login;
         $this->imapHost = $hostname;
         $this->imapPassword = $password;
-        $this->imapFolder = ( $folder ?: 'INBOX' );
+        $this->imapFolder = ($folder ?: 'INBOX');
         // 1/6th of the PHP memory limit
         $this->memoryLimit = $this->getMemoryLimit();
-        $this->messageSizeLimit = ( $this->memoryLimit )
+        $this->messageSizeLimit = $this->memoryLimit
             ? $this->memoryLimit / 6
-            : NULL;
+            : null;
 
-        if ( $attachmentsDir ) {
-            if ( ! is_dir( $attachmentsDir ) ) {
-                throw new Exception( "Directory '$attachmentsDir' not found" );
+        if ($attachmentsDir) {
+            if (! is_dir($attachmentsDir)) {
+                throw new Exception("Directory '$attachmentsDir' not found");
             }
 
-            $this->attachmentsDir = rtrim( realpath( $attachmentsDir ), '\\/' );
+            $this->attachmentsDir = rtrim(realpath($attachmentsDir), '\\/');
         }
 
         // Process the options
-        $options = array_intersect_key( $options, $this->defaults );
-        $this->options = array_merge( $this->defaults, $options );
+        $options = array_intersect_key($options, $this->defaults);
+        $this->options = array_merge($this->defaults, $options);
     }
 
     /**
-     * Get IMAP mailbox connection stream
-     * @return NULL|Zend\Mail\Protocol\Imap
+     * Get IMAP mailbox connection stream.
+     *
+     * @return null|Zend\Mail\Protocol\Imap
      */
     public function getImapStream()
     {
-        if ( ! $this->imapStream ) {
+        if (! $this->imapStream) {
             $this->imapStream = $this->initImapStream();
         }
 
@@ -113,8 +112,8 @@ class Mailbox
             'password' => $this->imapPassword
         ]);
 
-        if ( ! $imapStream ) {
-            throw new Exception( 'Failed to connect to IMAP mailbox' );
+        if (! $imapStream) {
+            throw new Exception('Failed to connect to IMAP mailbox');
         }
 
         return $imapStream;
@@ -124,7 +123,7 @@ class Mailbox
     {
         $imapStream = $this->getImapStream();
 
-        if ( $imapStream ) {
+        if ($imapStream) {
             $imapStream->close();
         }
     }
@@ -140,23 +139,23 @@ class Mailbox
      *
      * @return stdClass
      */
-    public function status( $folder = NULL )
+    public function status($folder = null)
     {
         $info = new stdClass;
         $folder = $folder ?: $this->imapFolder;
-        $examine = $this->getImapStream()->examineFolder( $folder );
+        $examine = $this->getImapStream()->examineFolder($folder);
 
         // Set response defaults
         $info->count = 0;
         $info->flags = [];
         $info->name = $folder;
 
-        if ( ! $examine ) {
+        if (! $examine) {
             return $info;
         }
 
-        $info->flags = $examine[ 'flags' ];
-        $info->count = $examine[ 'exists' ];
+        $info->flags = $examine['flags'];
+        $info->count = $examine['exists'];
 
         return $info;
     }
@@ -170,15 +169,15 @@ class Mailbox
      *
      * @return RecursiveIteratorIterator
      */
-    public function getFolders( $rootFolder = NULL )
+    public function getFolders($rootFolder = null)
     {
-        $folders = $this->getImapStream()->getFolders( $rootFolder );
+        $folders = $this->getImapStream()->getFolders($rootFolder);
 
-        if ( ! $folders ) {
+        if (! $folders) {
             return [];
         }
 
-        return new Iterator( $folders, Iterator::SELF_FIRST );
+        return new Iterator($folders, Iterator::SELF_FIRST);
     }
 
     /**
@@ -219,17 +218,19 @@ class Mailbox
      *   UNKEYWORD "string" - match messages that do not have the keyword "string"
      *   UNSEEN - match messages which have not been read yet
      * @param bool $uid
+     *
      * @return array Message IDs
      */
-    public function search( $criteria = 'ALL', $uid = FALSE )
+    public function search($criteria = 'ALL', $uid = false)
     {
-        $messageIds = $this->getImapStream()->search([ $criteria ], $uid );
+        $messageIds = $this->getImapStream()->search([$criteria], $uid);
 
         return $messageIds ?: [];
     }
 
     /**
      * Returns an array of UIDs indexed by message number.
+     *
      * @return array Unique IDs
      */
     public function getUniqueIds()
@@ -239,21 +240,24 @@ class Mailbox
 
     /**
      * Returns a count of messages for the selected folder.
+     *
      * @param array $flags
-     * @return integer
+     *
+     * @return int
      */
-    public function count( $flags = NULL )
+    public function count($flags = null)
     {
-        return $this->getImapStream()->countMessages( $flags );
+        return $this->getImapStream()->countMessages($flags);
     }
 
     /**
      * Changes the mailbox to a different folder.
+     *
      * @param string $folder
      */
-    public function select( $folder )
+    public function select($folder)
     {
-        return $this->getImapStream()->selectFolder( $folder );
+        return $this->getImapStream()->selectFolder($folder);
     }
 
     /**
@@ -284,17 +288,19 @@ class Mailbox
      *       contentType: Content type of the message
      *       inReplyTo: ID of message this replying to
      *       references: List of messages this one references
-     *   ]
+     *   ].
      *
-     * @param integer $id
+     * @param int $id
+     *
      * @throws MessageSizeLimitException
+     *
      * @return stdClass
      */
-    public function getMessageInfo( $id )
+    public function getMessageInfo($id)
     {
         // Set up the new message
         $messageInfo = new stdClass;
-        $messageInfo->charset = NULL;
+        $messageInfo->charset = null;
         $messageInfo->messageNum = $id;
         $messageInfo->flags = new stdClass;
         $messageInfo->headers = new stdClass;
@@ -302,15 +308,15 @@ class Mailbox
         // Check if the filesize will exceed our memory limit. Since
         // decoding the message explodes new lines, it could vastly
         // overuse memory.
-        $messageSize = $this->getImapStream()->getSize( $id );
-        $this->checkMessageSize( $messageSize );
+        $messageSize = $this->getImapStream()->getSize($id);
+        $this->checkMessageSize($messageSize);
 
         // Get the message info
-        $message = $this->getImapStream()->getMessage( $id );
+        $message = $this->getImapStream()->getMessage($id);
         // Store some internal properties
         $messageInfo->message = $message;
         $messageInfo->size = $messageSize;
-        $messageInfo->uid = $this->getImapStream()->getUniqueId( $id );
+        $messageInfo->uid = $this->getImapStream()->getUniqueId($id);
 
         // Use this to lookup the headers
         $headers = $message->getHeaders();
@@ -331,24 +337,23 @@ class Mailbox
 
         // Add the headers. This could throw exceptions during the
         // header parsing that we want to catch.
-        foreach ( $headerMap as $field => $key ) {
-            if ( ! isset( $messageInfo->headers->$key ) ) {
-                $messageInfo->headers->$key = NULL;
+        foreach ($headerMap as $field => $key) {
+            if (! isset($messageInfo->headers->$key)) {
+                $messageInfo->headers->$key = null;
             }
 
-            if ( $headers->has( $field ) ) {
+            if ($headers->has($field)) {
                 // These exceptions could be where a ReplyTo header
                 // exists along with a Reply-To. The former is invalid
                 // and will throw an exception.
                 try {
-                    $header = $headers->get( $field );
+                    $header = $headers->get($field);
                     $messageInfo->headers->$key = $header;
-                }
-                catch ( Exception $e ) {}
+                } catch (Exception $e) {}
             }
 
             // We only want one in case, say, subject came in twice
-            if ( is_a( $messageInfo->headers->$key, 'ArrayIterator' ) ) {
+            if (is_a($messageInfo->headers->$key, 'ArrayIterator')) {
                 $messageInfo->headers->$key =
                     $messageInfo->headers->$key->current();
             }
@@ -356,9 +361,9 @@ class Mailbox
 
         // Try to store the character-set from the content type.
         // This will probably only exist on text/plain parts.
-        if ( $headers->has( 'content-type' ) ) {
-            $contentType = $this->getSingleHeader( $headers, 'content-type' );
-            $messageInfo->charset = $contentType->getParameter( 'charset' );
+        if ($headers->has('content-type')) {
+            $contentType = $this->getSingleHeader($headers, 'content-type');
+            $messageInfo->charset = $contentType->getParameter('charset');
         }
 
         // Add in the flags
@@ -372,8 +377,8 @@ class Mailbox
             Storage::FLAG_ANSWERED => 'answered'
         ];
 
-        foreach ( $flagMap as $field => $key ) {
-            $messageInfo->flags->$key = isset( $flags[ $field ] );
+        foreach ($flagMap as $field => $key) {
+            $messageInfo->flags->$key = isset($flags[$field]);
         }
 
         return $messageInfo;
@@ -381,76 +386,78 @@ class Mailbox
 
     /**
      * Get the message data stored in a wrapper object.
+     *
      * @param $id
+     *
      * @return Message
      */
-    public function getMessage( $id )
+    public function getMessage($id)
     {
         $message = new Message;
-        $messageInfo = $this->getMessageInfo( $id );
+        $messageInfo = $this->getMessageInfo($id);
 
         // Store some common properties
         $message->id = $id;
         $head = $messageInfo->headers;
-        $message->messageId = ( isset( $head->id ) )
+        $message->messageId = isset($head->id)
             ? $head->id->getFieldValue()
-            : NULL;
-        $message->dateString = ( isset( $head->date ) )
+            : null;
+        $message->dateString = isset($head->date)
             ? $head->date->getFieldValue()
             : '';
-        $message->receivedString = ( isset( $head->received ) )
+        $message->receivedString = isset($head->received)
             ? $head->received->getFieldValue()
             : '';
-        $time = ( $message->dateString )
-            ? strtotime( $this->getCleanDateString( $message->dateString ) )
+        $time = $message->dateString
+            ? strtotime($this->getCleanDateString($message->dateString))
             : time();
-        $receivedDate = $this->getReceivedDate( $message->receivedString );
-        $receivedTime = ( $receivedDate )
-            ? strtotime( $this->getCleanDateString( $receivedDate ) )
+        $receivedDate = $this->getReceivedDate($message->receivedString);
+        $receivedTime = $receivedDate
+            ? strtotime($this->getCleanDateString($receivedDate))
             : $time;
-        $message->date = gmdate( 'Y-m-d H:i:s', $time );
-        $message->subject = ( isset( $head->subject ) )
+        $message->date = gmdate('Y-m-d H:i:s', $time);
+        $message->subject = isset($head->subject)
             ? $head->subject->getFieldValue()
             : '';
-        $message->dateReceived = gmdate( 'Y-m-d H:i:s', $receivedTime );
+        $message->dateReceived = gmdate('Y-m-d H:i:s', $receivedTime);
         // Try to get the from address and name
-        $from = $this->getAddresses( $head, 'from' );
-        $message->fromName = ( $from )
-            ? $from[ 0 ]->getName()
+        $from = $this->getAddresses($head, 'from');
+        $message->fromName = $from
+            ? $from[0]->getName()
             : '';
-        $message->fromAddress = ( $from )
-            ? $from[ 0 ]->getEmail()
+        $message->fromAddress = $from
+            ? $from[0]->getEmail()
             : '';
-        $message->fromString = ( isset( $head->from ) )
+        $message->fromString = isset($head->from)
             ? $head->from->getFieldValue()
             : '';
         // The next fields are the remaining addresses
-        $message->to = ( isset( $head->to ) )
-            ? $this->getAddresses( $head, 'to' )
+        $message->to = isset($head->to)
+            ? $this->getAddresses($head, 'to')
             : [];
-        $message->toString = ( isset( $head->to ) )
+        $message->toString = isset($head->to)
             ? $head->to->getFieldValue()
             : '';
-        $message->cc = ( isset( $head->cc ) )
-            ? $this->getAddresses( $head, 'cc' )
+        $message->cc = isset($head->cc)
+            ? $this->getAddresses($head, 'cc')
             : [];
-        $message->bcc = ( isset( $head->bcc ) )
-            ? $this->getAddresses( $head, 'bcc' )
+        $message->bcc = isset($head->bcc)
+            ? $this->getAddresses($head, 'bcc')
             : [];
-        $message->replyTo = ( isset( $head->replyTo ) )
-            ? $this->getAddresses( $head, 'replyTo' )
+        $message->replyTo = isset($head->replyTo)
+            ? $this->getAddresses($head, 'replyTo')
             : [];
         // This is a message ID that the message is replying to
-        $message->inReplyTo = ( isset( $head->inReplyTo ) )
+        $message->inReplyTo = isset($head->inReplyTo)
             ? $head->inReplyTo->getFieldValue()
-            : NULL;
+            : null;
         // This is a list of other message IDs that this message
         // may reference
-        $message->references = ( isset( $head->references ) )
+        $message->references = isset($head->references)
             ? $head->references->getFieldValue()
-            : NULL;
+            : null;
         // Set an internal reference to the IMAP protocol message
-        $message->setImapMessage( $messageInfo->message );
+        $message->setImapMessage($messageInfo->message);
 
         // Extend message with messageInfo
         $message->uid = $messageInfo->uid;
@@ -461,8 +468,8 @@ class Mailbox
         $message->messageNum = $messageInfo->messageNum;
 
         // If this is NOT a multipart message, store the plain text
-        if ( ! $messageInfo->message->isMultipart() ) {
-            $this->processContent( $message, $messageInfo->message );
+        if (! $messageInfo->message->isMultipart()) {
+            $this->processContent($message, $messageInfo->message);
 
             return $message;
         }
@@ -472,9 +479,9 @@ class Mailbox
         // and get each part that way.
         $partNum = 1;
 
-        foreach ( $messageInfo->message as $part ) {
+        foreach ($messageInfo->message as $part) {
             $part->partNum = $partNum++;
-            $this->processPart( $message, $part );
+            $this->processPart($message, $part);
         }
 
         return $message;
@@ -484,18 +491,20 @@ class Mailbox
      * Takes in a headers object and returns an array of addresses
      * for a particular field. If $returnString is true, then the
      * comma-separated list of RFC822 name/emails is returned.
+     *
      * @param \Headers $headers
      * @param string $field
+     *
      * @return array|string
      */
-    protected function getAddresses( $headers, $field, $returnString = FALSE )
+    protected function getAddresses($headers, $field, $returnString = false)
     {
         $addresses = [];
 
-        if ( isset( $headers->$field )
-            && is_a( $headers->$field, 'ArrayIterator' ) )
+        if (isset($headers->$field)
+            && is_a($headers->$field, 'ArrayIterator'))
         {
-            foreach ( $headers->$field->getAddressList() as $address ) {
+            foreach ($headers->$field->getAddressList() as $address) {
                 $addresses[] = $address;
             }
         }
@@ -503,56 +512,56 @@ class Mailbox
         return $addresses;
     }
 
-    protected function processPart( Message &$message, Part $part )
+    protected function processPart(Message &$message, Part $part)
     {
         $headers = $part->getHeaders();
-        $contentType = ( $headers->has( 'content-type' ) )
-            ? $part->getHeaderField( 'content-type' )
-            : NULL;
+        $contentType = $headers->has('content-type')
+            ? $part->getHeaderField('content-type')
+            : null;
 
         // If it's a file attachment we want to process all of
         // the attachments and save them to $message->attachments.
         // RFC822 parts are almost ALWAYS wrapping something else
         // so if that's the content type then skip out.
-        if ( ( $headers->has( 'x-attachment-id' )
-                || $headers->has( 'content-disposition' ) )
-            && ! $this->isTextType( $contentType )
-            && ! $contentType === Mime::MESSAGE_RFC822 )
+        if (($headers->has('x-attachment-id')
+                || $headers->has('content-disposition'))
+            && ! $this->isTextType($contentType)
+            && Mime::MESSAGE_RFC822 === ! $contentType)
         {
-            $this->processAttachment( $message, $part );
+            $this->processAttachment($message, $part);
         }
         // Check if the part is text/plain or text/html and save
         // those as properties on $message.
         else {
-            $this->processContent( $message, $part );
+            $this->processContent($message, $part);
         }
     }
 
-    protected function processContent( Message &$message, Part $part )
+    protected function processContent(Message &$message, Part $part)
     {
         $headers = $part->getHeaders();
-        $contentType = ( $headers->has( 'content-type' ) )
-            ? strtolower( $part->getHeaderField( 'content-type' ) )
-            : NULL;
+        $contentType = $headers->has('content-type')
+            ? strtolower($part->getHeaderField('content-type'))
+            : null;
 
-        if ( $this->isMultipartType( $contentType ) ) {
-            $boundary = $part->getHeaderField( 'content-type', 'boundary' );
+        if ($this->isMultipartType($contentType)) {
+            $boundary = $part->getHeaderField('content-type', 'boundary');
 
-            if ( $boundary ) {
+            if ($boundary) {
                 $subStructs = Decode::splitMessageStruct(
                     $part->getContent(),
-                    $boundary );
+                    $boundary);
                 $subPartNum = 1;
-                $subStructs = ( $subStructs ) ?: [];
+                $subStructs = ($subStructs) ?: [];
 
-                foreach ( $subStructs as $subStruct ) {
+                foreach ($subStructs as $subStruct) {
                     $subPart = new Part([
-                        'content' => $subStruct[ 'body' ],
-                        'headers' => $subStruct[ 'header' ]
+                        'content' => $subStruct['body'],
+                        'headers' => $subStruct['header']
                     ]);
                     // Recursive call
-                    $subPart->partNum = $part->partNum .".". $subPartNum++;
-                    $this->processContent( $message, $subPart );
+                    $subPart->partNum = $part->partNum.'.'.$subPartNum++;
+                    $this->processContent($message, $subPart);
                 }
             }
             // Most likely an RFC822 wrapper
@@ -561,61 +570,59 @@ class Mailbox
                     'raw' => $part->getContent()
                 ]);
                 $wrappedPart->partNum = $part->partNum;
-                $this->processContent( $message, $wrappedPart );
+                $this->processContent($message, $wrappedPart);
             }
         }
-        elseif ( $this->isTextType( $contentType )
-            || ! $contentType )
-        {
+        elseif ($this->isTextType($contentType) || ! $contentType) {
             $this->processTextContent(
                 $message,
                 $contentType,
-                self::convertContent( $part->getContent(), $part->getHeaders() ),
-                ( $contentType
-                    ? $part->getHeaderField( 'content-type', 'charset' )
-                    : 'US-ASCII' ));
+                self::convertContent($part->getContent(), $part->getHeaders()),
+                ($contentType
+                    ? $part->getHeaderField('content-type', 'charset')
+                    : 'US-ASCII'));
         }
         else {
-            $this->processAttachment( $message, $part );
+            $this->processAttachment($message, $part);
         }
     }
 
-    protected function processTextContent( Message &$message, $contentType, $content, $charset )
+    protected function processTextContent(Message &$message, $contentType, $content, $charset)
     {
-        if ( $contentType === Mime::TYPE_HTML ) {
-            $message->textHtml .= File::convertEncoding( $content, $charset, 'UTF-8' );
+        if (Mime::TYPE_HTML === $contentType) {
+            $message->textHtml .= File::convertEncoding($content, $charset, 'UTF-8');
         }
         else {
             // Set the charset here if we have one
             $message->charset = $charset;
-            $message->textPlain .= File::convertEncoding( $content, $charset, 'UTF-8' );
+            $message->textPlain .= File::convertEncoding($content, $charset, 'UTF-8');
         }
     }
 
-    protected function processAttachment( Message &$message, Part $part )
+    protected function processAttachment(Message &$message, Part $part)
     {
         // If attachments are disabled, skip out now
-        if ( $this->options[ self::OPT_SKIP_ATTACHMENTS ] === TRUE ) {
+        if (true === $this->options[self::OPT_SKIP_ATTACHMENTS]) {
             return;
         }
 
-        $name = NULL;
-        $filename = NULL;
-        $contentType = NULL;
+        $name = null;
+        $filename = null;
+        $contentType = null;
         $headers = $part->getHeaders();
-        $attachment = new Attachment( $part );
+        $attachment = new Attachment($part);
 
         // Get the filename and/or name for the attachment. Try the
         // disposition first.
-        if ( $headers->has( 'content-disposition' ) ) {
-            $name = $part->getHeaderField( 'content-disposition', 'name' );
-            $filename = $part->getHeaderField( 'content-disposition', 'filename' );
+        if ($headers->has('content-disposition')) {
+            $name = $part->getHeaderField('content-disposition', 'name');
+            $filename = $part->getHeaderField('content-disposition', 'filename');
         }
 
-        if ( $headers->has( 'content-type' ) ) {
-            $contentType = strtolower( $part->getHeaderField( 'content-type' ) );
-            $name = $name ?: $part->getHeaderField( 'content-type', 'name' );
-            $filename = $filename ?: $part->getHeaderField( 'content-type', 'filename' );
+        if ($headers->has('content-type')) {
+            $contentType = strtolower($part->getHeaderField('content-type'));
+            $name = $name ?: $part->getHeaderField('content-type', 'name');
+            $filename = $filename ?: $part->getHeaderField('content-type', 'filename');
         }
 
         // Store this before overwriting
@@ -624,35 +631,35 @@ class Mailbox
 
         // Certain mime types don't provide name info but we can try
         // to infer it from the mime type.
-        if ( ! $filename && $headers->has( 'content-id' ) ) {
-            $filename = trim( $part->getHeaderField( 'content-id' ), " <>" );
+        if (! $filename && $headers->has('content-id')) {
+            $filename = trim($part->getHeaderField('content-id'), ' <>');
         }
 
-        if ( ! $filename && $headers->has( 'x-attachment-id' ) ) {
-            $filename = trim( $part->getHeaderField( 'x-attachment-id' ), " <>" );
+        if (! $filename && $headers->has('x-attachment-id')) {
+            $filename = trim($part->getHeaderField('x-attachment-id'), ' <>');
         }
 
         // Content-Location can be the URL path to a file. If this exists
         // then try to get the filename from this path.
-        if ( ! $filename && $headers->has( 'content-location' ) ) {
-            $filename = basename( $part->getHeaderField( 'content-location' ) );
+        if (! $filename && $headers->has('content-location')) {
+            $filename = basename($part->getHeaderField('content-location'));
         }
 
         // If it's a calendar event then let's give it a nice name
-        if ( ! $filename && $contentType === 'text/calendar' ) {
+        if (! $filename && 'text/calendar' === $contentType) {
             $filename = 'event.ics';
         }
 
-        if ( ! $filename ) {
+        if (! $filename) {
             $filename = $name;
         }
 
-        if ( ! $filename ) {
+        if (! $filename) {
             $filename = 'noname';
         }
 
         // Try to add an extension if it's missing one
-        File::addExtensionIfMissing( $filename, $contentType );
+        File::addExtensionIfMissing($filename, $contentType);
 
         // If we are fortunate enough to get an attachment ID, then
         // use that. Otherwise we want to create on in a deterministic
@@ -660,64 +667,64 @@ class Mailbox
         $attachment->name = $name;
         $attachment->filename = $filename;
         $attachment->mimeType = $contentType;
-        $attachment->generateId( $message );
+        $attachment->generateId($message);
 
         // Attachments are saved in YYYY/MM directories
-        if ( $this->attachmentsDir ) {
-            $attachment->generateFilepath( $message, $this->attachmentsDir );
-            $this->debug( "Before writing attachment to disk" );
+        if ($this->attachmentsDir) {
+            $attachment->generateFilepath($message, $this->attachmentsDir);
+            $this->debug('Before writing attachment to disk');
             $attachment->saveToFile();
-            $this->debug( "After file_put_contents finished" );
+            $this->debug('After file_put_contents finished');
         }
 
-        $message->addAttachment( $attachment );
-        $this->debug( "New attachment created" );
+        $message->addAttachment($attachment);
+        $this->debug('New attachment created');
     }
 
-    static public function convertContent( $content, $headers, $failOnNoEncode = FALSE )
+    public static function convertContent($content, $headers, $failOnNoEncode = false)
     {
-        $data = NULL;
+        $data = null;
 
-        if ( $headers->has( 'content-transfer-encoding' ) ) {
+        if ($headers->has('content-transfer-encoding')) {
             $encoding = $headers
-                ->get( 'content-transfer-encoding' )
+                ->get('content-transfer-encoding')
                 ->getFieldValue();
 
-            if ( $encoding === 'base64' ) {
+            if ('base64' === $encoding) {
                 $data = preg_replace(
                     '~[^a-zA-Z0-9+=/]+~s',
                     '',
-                    $content );
-                $data = base64_decode( $data );
+                    $content);
+                $data = base64_decode($data);
             }
-            elseif ( $encoding === '7bit' ) {
-                $data = File::decode7bit( $content );
+            elseif ('7bit' === $encoding) {
+                $data = File::decode7bit($content);
             }
-            elseif ( $encoding === '8bit' ) {
+            elseif ('8bit' === $encoding) {
                 $data = $content;
             }
-            elseif ( $encoding === 'quoted-printable' ) {
-                $data = quoted_printable_decode( $content );
+            elseif ('quoted-printable' === $encoding) {
+                $data = quoted_printable_decode($content);
             }
         }
 
-        if ( is_null( $data ) ) {
-            if ( $failOnNoEncode === TRUE ) {
+        if (is_null($data)) {
+            if (true === $failOnNoEncode) {
                 throw new RuntimeException(
-                    "Missing Content-Transfer-Encoding header. ".
-                    "Unsure about how to decode." );
+                    'Missing Content-Transfer-Encoding header. '.
+                    'Unsure about how to decode.');
             }
 
             // Depending on file extension, we may need to base64_decode
             // the data.
-            $decoded = base64_decode( $content, TRUE );
+            $decoded = base64_decode($content, true);
             $data = $decoded ?: $content;
         }
 
         return $data;
     }
 
-    private function isMultipartType( $contentType )
+    private function isMultipartType($contentType)
     {
         return in_array(
             $contentType, [
@@ -730,7 +737,7 @@ class Mailbox
             ]);
     }
 
-    private function isTextType( $contentType )
+    private function isTextType($contentType)
     {
         return in_array(
             $contentType, [
@@ -742,42 +749,42 @@ class Mailbox
             ]);
     }
 
-    private function getSingleHeader( $headers, $key )
+    private function getSingleHeader($headers, $key)
     {
-        $header = $headers->get( $key );
+        $header = $headers->get($key);
 
-        if ( is_a( $header, 'ArrayIterator' ) && count( $header ) > 1 ) {
-            return current( $header );
+        if (is_a($header, 'ArrayIterator') && count($header) > 1) {
+            return current($header);
         }
 
         return $header;
     }
 
-    private function getCleanDateString( $string )
+    private function getCleanDateString($string)
     {
-        return preg_replace( '/\(.*?\)/', '', $string );
+        return preg_replace('/\(.*?\)/', '', $string);
     }
 
-    private function getReceivedDate( $string )
+    private function getReceivedDate($string)
     {
         // Work backwards, trying to find a date part
-        $parts = array_reverse( explode( ';', $string ) );
+        $parts = array_reverse(explode(';', $string));
 
-        foreach ( $parts as $part ) {
-            if ( strtotime( $part ) > 0 ) {
+        foreach ($parts as $part) {
+            if (strtotime($part) > 0) {
                 return $part;
             }
         }
 
-        return NULL;
+        return null;
     }
 
     private function getMemoryLimit()
     {
         $val = trim(ini_get('memory_limit'));
 
-        if ( $val == -1 ) {
-            return NULL;
+        if (-1 == $val) {
+            return null;
         }
 
         $num = intval(substr($val, -1));
@@ -786,8 +793,10 @@ class Mailbox
         switch ($last) {
             case 'g':
                 $num *= 1024;
+                // no break
             case 'm':
                 $num *= 1024;
+                // no break
             case 'k':
                 $num *= 1024;
         }
@@ -795,37 +804,37 @@ class Mailbox
         return $num;
     }
 
-    private function checkMessageSize( $size )
+    private function checkMessageSize($size)
     {
-        if ( $this->messageSizeLimit && $size > $this->messageSizeLimit ) {
+        if ($this->messageSizeLimit && $size > $this->messageSizeLimit) {
             throw new MessageSizeLimitException(
                 $this->messageSizeLimit,
                 $size,
-                $this->memoryLimit );
+                $this->memoryLimit);
         }
     }
 
-    public function debug( $message )
+    public function debug($message)
     {
-        if ( ! $this->options[ self::OPT_DEBUG_MODE ] ) {
+        if (! $this->options[self::OPT_DEBUG_MODE]) {
             return;
         }
 
         $date = new \DateTime;
 
         echo sprintf(
-            "[%s] %s MB peak, %s MB real, %s MB cur -- %s%s",
-            $date->format( 'Y-m-d H:i:s' ),
+            '[%s] %s MB peak, %s MB real, %s MB cur -- %s%s',
+            $date->format('Y-m-d H:i:s'),
             number_format(
-                memory_get_peak_usage( TRUE ) / 1024 / 1024,
-                2 ),
+                memory_get_peak_usage(true) / 1024 / 1024,
+                2),
             number_format(
-                memory_get_usage( TRUE ) / 1024 / 1024,
-                2 ),
+                memory_get_usage(true) / 1024 / 1024,
+                2),
             number_format(
                 memory_get_usage() / 1024 / 1024,
-                2 ),
+                2),
             $message,
-            PHP_EOL );
+            PHP_EOL);
     }
 }

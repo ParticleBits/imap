@@ -37,5 +37,10 @@
         "psr-4": {
             "Pb\\Imap\\": "src/"
         }
+    },
+    "scripts": {
+        "fix": "php-cs-fixer fix",
+        "test": "@php tests/memory.php",
+        "lint": "php-cs-fixer fix --dry-run --diff"
     }
 }

@@ -12,60 +12,63 @@ class File
      * Looks for the extension on the filename. If none is found,
      * it tries to find one from the lookup array. If none is still
      * found use the specified default.
+     *
      * @param string $filename
      * @param string $mimeType
      * @param string $default
      */
-    static public function addExtensionIfMissing( &$filename, $mimeType, $default = NULL )
+    public static function addExtensionIfMissing(&$filename, $mimeType, $default = null)
     {
-        if ( ! $filename || ! strlen( $filename ) ) {
-            return NULL;
+        if (! $filename || ! strlen($filename)) {
+            return null;
         }
 
-        $pieces = explode( '.', $filename );
-        $extension = ( strpos( $filename, "." ) !== FALSE )
-            ? end( $pieces )
-            : NULL;
+        $pieces = explode('.', $filename);
+        $extension = false !== strpos($filename, '.')
+            ? end($pieces)
+            : null;
 
-        if ( $extension ) {
-            return NULL;
+        if ($extension) {
+            return null;
         }
 
-        if ( isset( self::$mimeExtensions[ $mimeType ] ) ) {
-            $filename = $filename .".". self::$mimeExtensions[ $mimeType ];
+        if (isset(self::$mimeExtensions[$mimeType])) {
+            $filename = $filename.'.'.self::$mimeExtensions[$mimeType];
         }
-        elseif ( $default ) {
-            $filename = $filename .".". $default;
+        elseif ($default) {
+            $filename = $filename.'.'.$default;
         }
     }
 
     /**
      * Converts a string from one encoding to another.
+     *
      * @param string $string
      * @param string $fromEncoding
      * @param string $toEncoding
+     *
      * @return string Converted string if conversion was successful, or the
      *   original string if not
      */
-    static public function convertEncoding( $string, $fromEncoding, $toEncoding )
+    public static function convertEncoding($string, $fromEncoding, $toEncoding)
     {
-        if ( ! $fromEncoding ) {
+        if (! $fromEncoding) {
             return $string;
         }
 
-        $convertedString = NULL;
+        $convertedString = null;
 
-        if ( $string && $fromEncoding != $toEncoding ) {
+        if ($string && $fromEncoding != $toEncoding) {
             $convertedString = @iconv(
                 $fromEncoding,
-                $toEncoding . '//IGNORE',
-                $string );
+                $toEncoding.'//IGNORE',
+                $string);
 
-            if ( ! $convertedString && extension_loaded( 'mbstring' ) ) {
+            if (! $convertedString && extension_loaded('mbstring')) {
                 $convertedString = @mb_convert_encoding(
                     $string,
                     $toEncoding,
-                    $fromEncoding );
+                    $fromEncoding);
             }
         }
 
@@ -74,18 +77,20 @@ class File
 
     /**
      * Decodes 7bit text.
+     *
      * @param string $string
+     *
      * @return string
      */
-    static public function decode7Bit( $string )
+    public static function decode7Bit($string)
     {
         // If there are no spaces on the first line, assume that the
         // body is actually base64-encoded, and decode it.
-        $lines = explode( "\r\n", $string );
-        $firstLineWords = explode( ' ', $lines[ 0 ] );
+        $lines = explode("\r\n", $string);
+        $firstLineWords = explode(' ', $lines[0]);
 
-        if ( $firstLineWords[ 0 ] == $lines[ 0 ] ) {
-            $string = base64_decode( $string );
+        if ($firstLineWords[0] == $lines[0]) {
+            $string = base64_decode($string);
         }
 
         // Manually convert common encoded characters into their
@@ -103,86 +108,86 @@ class File
 
         // Loop through the encoded characters and replace any that
         // are found.
-        foreach ( $characters as $key => $value ) {
-            $string = str_replace( $key, $value, $string );
+        foreach ($characters as $key => $value) {
+            $string = str_replace($key, $value, $string);
         }
 
         return $string;
     }
 
-    static private $mimeExtensions = [
-        "application/ics" => "ics",
-        "application/illustrator" => "ai",
-        "application/java-archive" => "jar",
-        "application/java-vm" => "class",
-        "application/javascript" => "js",
-        "application/json" => "json",
-        "application/msword" => "doc",
-        "application/octet-stream" => "bin",
-        "application/pdf" => "pdf",
-        "application/pkcs7-signature" => "p7s",
-        "application/pgp-signature" => "asc",
-        "application/photoshop" => "psd",
-        "application/postscript" => "ps",
-        "application/rtf" => "rtf",
-        "application/sql" => "sql",
-        "application/vnd.ms-excel" => "xls",
-        "application/vnd.ms-powerpoint" => "ppt",
-        "application/vnd.ms-publisher" => "pub",
-        "application/vnd.ms-word" => "doc",
-        "application/vnd.ms-xpsdocument" => "xps",
-        "application/vnd.openxmlformats-officedocument.presentationml.presentation" => "pptx",
-        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" => "xlsx",
-        "application/vnd.openxmlformats-officedocument.wordprocessingml.document" => "docx",
-        "application/vnd.oasis.opendocument.text" => "odt",
-        "application/x-compress" => "zip",
-        "application/x-gzip" => "gz",
-        "application/x-httpd-php" => "php",
-        "application/x-font-ttf" => "ttf",
-        "application/x-javascript" => "js",
-        "application/x-msword" => "doc",
-        "application/x-php" => "php",
-        "application/x-pkcs7-signature" => "p7s",
-        "application/x-shockwave-flash" => "swf",
-        "application/x-zip-compressed" => "zip",
-        "application/xml" => "xml",
-        "application/zip" => "zip",
-        "audio/mp4" => "mp4a",
-        "audio/mpeg" => "mpga",
-        "audio/ogg" => "ogg",
-        "audio/wav" => "wav",
-        "audio/x-wav" => "wav",
-        "image/bmp" => "bmp",
-        "image/gif" => "gif",
-        "image/jpg" => "jpg",
-        "image/jpeg" => "jpeg",
-        "image/pjpeg" => "jpg",
-        "image/png" => "png",
-        "image/tiff" => "tiff",
-        "image/vnd.adobe.photoshop" => "psd",
-        "image/x-icon" => "ico",
-        "message/rfc822" => "mime",
-        "text/calendar" => "ics",
-        "text/css" => "css",
-        "text/csv" => "csv",
-        "text/html" => "html",
-        "text/plain" => "txt",
-        "text/tab-separated-values" => "tsv",
-        "text/vcard" => "vcard",
-        "text/x-python" => "py",
-        "text/x-sql" => "sql",
-        "text/x-vcard" => "vcard",
-        "video/h264" => "h264",
-        "video/jpeg" => "jpgv",
-        "video/mp4" => "mp4",
-        "video/mpeg" => "mpeg",
-        "video/ogg" => "ogv",
-        "video/quicktime" => "mov",
-        "video/webm" => "webm",
-        "video/x-flv" => "flv",
-        "video/x-m4v" => "m4v",
-        "video/x-matroska" => "mkv",
-        "video/x-ms-wmv" => "wmv",
-        "video/x-msvideo" => "avi"
+    private static $mimeExtensions = [
+        'application/ics' => 'ics',
+        'application/illustrator' => 'ai',
+        'application/java-archive' => 'jar',
+        'application/java-vm' => 'class',
+        'application/javascript' => 'js',
+        'application/json' => 'json',
+        'application/msword' => 'doc',
+        'application/octet-stream' => 'bin',
+        'application/pdf' => 'pdf',
+        'application/pkcs7-signature' => 'p7s',
+        'application/pgp-signature' => 'asc',
+        'application/photoshop' => 'psd',
+        'application/postscript' => 'ps',
+        'application/rtf' => 'rtf',
+        'application/sql' => 'sql',
+        'application/vnd.ms-excel' => 'xls',
+        'application/vnd.ms-powerpoint' => 'ppt',
+        'application/vnd.ms-publisher' => 'pub',
+        'application/vnd.ms-word' => 'doc',
+        'application/vnd.ms-xpsdocument' => 'xps',
+        'application/vnd.openxmlformats-officedocument.presentationml.presentation' => 'pptx',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' => 'xlsx',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document' => 'docx',
+        'application/vnd.oasis.opendocument.text' => 'odt',
+        'application/x-compress' => 'zip',
+        'application/x-gzip' => 'gz',
+        'application/x-httpd-php' => 'php',
+        'application/x-font-ttf' => 'ttf',
+        'application/x-javascript' => 'js',
+        'application/x-msword' => 'doc',
+        'application/x-php' => 'php',
+        'application/x-pkcs7-signature' => 'p7s',
+        'application/x-shockwave-flash' => 'swf',
+        'application/x-zip-compressed' => 'zip',
+        'application/xml' => 'xml',
+        'application/zip' => 'zip',
+        'audio/mp4' => 'mp4a',
+        'audio/mpeg' => 'mpga',
+        'audio/ogg' => 'ogg',
+        'audio/wav' => 'wav',
+        'audio/x-wav' => 'wav',
+        'image/bmp' => 'bmp',
+        'image/gif' => 'gif',
+        'image/jpg' => 'jpg',
+        'image/jpeg' => 'jpeg',
+        'image/pjpeg' => 'jpg',
+        'image/png' => 'png',
+        'image/tiff' => 'tiff',
+        'image/vnd.adobe.photoshop' => 'psd',
+        'image/x-icon' => 'ico',
+        'message/rfc822' => 'mime',
+        'text/calendar' => 'ics',
+        'text/css' => 'css',
+        'text/csv' => 'csv',
+        'text/html' => 'html',
+        'text/plain' => 'txt',
+        'text/tab-separated-values' => 'tsv',
+        'text/vcard' => 'vcard',
+        'text/x-python' => 'py',
+        'text/x-sql' => 'sql',
+        'text/x-vcard' => 'vcard',
+        'video/h264' => 'h264',
+        'video/jpeg' => 'jpgv',
+        'video/mp4' => 'mp4',
+        'video/mpeg' => 'mpeg',
+        'video/ogg' => 'ogv',
+        'video/quicktime' => 'mov',
+        'video/webm' => 'webm',
+        'video/x-flv' => 'flv',
+        'video/x-m4v' => 'm4v',
+        'video/x-matroska' => 'mkv',
+        'video/x-ms-wmv' => 'wmv',
+        'video/x-msvideo' => 'avi'
     ];
-};
+}
