@@ -33,6 +33,7 @@
         "particlebits/zend-mail": "@dev",
         "particlebits/zend-mime": "@dev"
     },
+    "minimum-stability": "dev",
     "autoload": {
         "psr-4": {
             "Pb\\Imap\\": "src/"

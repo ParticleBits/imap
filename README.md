@@ -2,7 +2,16 @@
 
 \Pb\Imap is a library for downloading and parsing IMAP email messages. For
 performance reasons, the PHP IMAP extension is specifically *not* used, in
-favour of the Zend Mail library.
+favor of the Zend Mail library.
+
+Separate forks of the Zend-Mail and Zend-Mime libraries are used and kept
+as up to date as possible. These forks are needed to make minor but necessary
+updates that wouldn't be approved in time or at all by the Zend maintainers.
+
+Memory performance is the goal of this library and it's been stabilized and
+reduced as much as possible. Depending on file attachment downloads, this
+application uses on average 10-20 MB of memory, with a peak of up to 75-100
+MB during large attachment downloads.
 
 ### Features
 
@@ -32,10 +41,10 @@ $> composer require particlebits/imap ^1.2
 
 ```php
 $mailbox = new \Pb\Imap\Mailbox(
-    "imap.gmail.com",
-    "something@gmail.com",
-    "**********",
-    "INBOX",
+    'imap.gmail.com',
+    'something@gmail.com',
+    '**********',
+    'INBOX',
     __DIR__ .'/attachments',
     [
         \Pb\Imap\Mailbox::OPT_DEBUG_MODE => true
