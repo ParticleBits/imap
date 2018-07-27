@@ -38,19 +38,10 @@ $pid = getmypid();
 echo <<<STR
 My PID is: $pid
 Run this in another terminal:
-$> watch -n 1 ps -o vsz $pid
-
-This script only works with GMail address!
-
-
+$> watch -n 1 ps -o vsz $pid\n
+This script only works with GMail address!\n\n
 STR;
 
-for ($i = 5; $i > 0; $i--) {
-    echo "\r$i   ";
-    sleep(1);
-}
-
-echo "\r";
 $index = 1;
 $config = parse_ini_file(__DIR__.'/secret.ini');
 $email = isset($config['email']) ? $config['email'] : '';

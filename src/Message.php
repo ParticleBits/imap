@@ -2,6 +2,8 @@
 
 namespace Pb\Imap;
 
+use Zend\Mail\Storage\Message as ImapMessage;
+
 class Message
 {
     public $id;
@@ -28,7 +30,8 @@ class Message
     public $fromAddress = '';
     public $dateReceived = '';
     public $receivedString = '';
-    public $originalMessage = '';
+    public $rawHeaders = '';
+    public $rawContent = '';
 
     // Reference to IMAP message object
     private $imapMessage;
@@ -56,7 +59,7 @@ class Message
         return $this->attachments;
     }
 
-    public function setImapMessage($imapMessage)
+    public function setImapMessage(ImapMessage $imapMessage)
     {
         $this->imapMessage = $imapMessage;
     }
@@ -64,6 +67,12 @@ class Message
     public function getImapMessage()
     {
         return $this->imapMessage;
+    }
+
+    public function setRaw(MessageInfo $messageInfo)
+    {
+        $this->rawContent = $messageInfo->rawContent;
+        $this->rawHeaders = $messageInfo->rawHeaders;
     }
 
     /**

@@ -28,7 +28,7 @@
         }
     ],
     "require": {
-        "php": "^5.6 || ^7.0",
+        "php": "^5.6 || ^7.0 || ^7.1 || 7.2",
         "ext-iconv": "*",
         "particlebits/zend-mail": "@dev",
         "particlebits/zend-mime": "@dev"

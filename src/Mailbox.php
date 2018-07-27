@@ -7,7 +7,6 @@ use Exception;
 use Zend\Mime\Mime;
 use Zend\Mime\Decode;
 use RuntimeException;
-use Zend\Mail\Storage;
 use Zend\Mail\Storage\Part;
 use RecursiveIteratorIterator as Iterator;
 use Pb\Imap\Exceptions\MessageSizeLimit as MessageSizeLimitException;
@@ -182,11 +181,12 @@ class Mailbox
 
     /**
      * This function performs a search on the mailbox currently opened in the
-     * given IMAP stream. For example, to match all unanswered messages sent by
-     * Mom, you'd use: "UNANSWERED FROM mom". Searches appear to be case
+     * given IMAP stream. For example, to match all unanswered messages sent
+     * by Mom, you'd use: "UNANSWERED FROM Mom". Searches appear to be case
      * insensitive. This list of criteria is from a reading of the UW c-client
-     * source code and may be incomplete or inaccurate (see also RFC2060,
-     * section 6.4.4).
+     * source code and may be incomplete or inaccurate.
+     *
+     * @see RFC2060 section 6.4.4
      *
      * @param string $criteria String, delimited by spaces, in which the
      * following keywords are allowed. Any multi-word arguments (e.g. FROM
@@ -294,16 +294,12 @@ class Mailbox
      *
      * @throws MessageSizeLimitException
      *
-     * @return stdClass
+     * @return MessageInfo
      */
     public function getMessageInfo($id)
     {
         // Set up the new message
-        $messageInfo = new stdClass;
-        $messageInfo->charset = null;
-        $messageInfo->messageNum = $id;
-        $messageInfo->flags = new stdClass;
-        $messageInfo->headers = new stdClass;
+        $messageInfo = new MessageInfo($id);
 
         // Check if the filesize will exceed our memory limit. Since
         // decoding the message explodes new lines, it could vastly
@@ -313,6 +309,7 @@ class Mailbox
 
         // Get the message info
         $message = $this->getImapStream()->getMessage($id);
+
         // Store some internal properties
         $messageInfo->message = $message;
         $messageInfo->size = $messageSize;
@@ -320,44 +317,7 @@ class Mailbox
 
         // Use this to lookup the headers
         $headers = $message->getHeaders();
-        $headerMap = [
-            'to' => 'to',
-            'cc' => 'cc',
-            'bcc' => 'bcc',
-            'from' => 'from',
-            'date' => 'date',
-            'message-id' => 'id',
-            'subject' => 'subject',
-            'reply-to' => 'replyTo',
-            'received' => 'received',
-            'references' => 'references',
-            'in-reply-to' => 'inReplyTo',
-            'content-type' => 'contentType'
-        ];
-
-        // Add the headers. This could throw exceptions during the
-        // header parsing that we want to catch.
-        foreach ($headerMap as $field => $key) {
-            if (! isset($messageInfo->headers->$key)) {
-                $messageInfo->headers->$key = null;
-            }
-
-            if ($headers->has($field)) {
-                // These exceptions could be where a ReplyTo header
-                // exists along with a Reply-To. The former is invalid
-                // and will throw an exception.
-                try {
-                    $header = $headers->get($field);
-                    $messageInfo->headers->$key = $header;
-                } catch (Exception $e) {}
-            }
-
-            // We only want one in case, say, subject came in twice
-            if (is_a($messageInfo->headers->$key, 'ArrayIterator')) {
-                $messageInfo->headers->$key =
-                    $messageInfo->headers->$key->current();
-            }
-        }
+        $messageInfo->addHeaders($headers);
 
         // Try to store the character-set from the content type.
         // This will probably only exist on text/plain parts.
@@ -366,20 +326,9 @@ class Mailbox
             $messageInfo->charset = $contentType->getParameter('charset');
         }
 
-        // Add in the flags
-        $flags = $message->getFlags();
-        $flagMap = [
-            Storage::FLAG_SEEN => 'seen',
-            Storage::FLAG_DRAFT => 'draft',
-            Storage::FLAG_RECENT => 'recent',
-            Storage::FLAG_DELETED => 'deleted',
-            Storage::FLAG_FLAGGED => 'flagged',
-            Storage::FLAG_ANSWERED => 'answered'
-        ];
-
-        foreach ($flagMap as $field => $key) {
-            $messageInfo->flags->$key = isset($flags[$field]);
-        }
+        // Add in the flags and raw content
+        $messageInfo->addFlags($message->getFlags());
+        $messageInfo->rawContent = $message->getContent();
 
         return $messageInfo;
     }
@@ -458,6 +407,8 @@ class Mailbox
             : null;
         // Set an internal reference to the IMAP protocol message
         $message->setImapMessage($messageInfo->message);
+        // Set the raw content and headers
+        $message->setRaw($messageInfo);
 
         // Extend message with messageInfo
         $message->uid = $messageInfo->uid;
@@ -662,8 +613,7 @@ class Mailbox
         File::addExtensionIfMissing($filename, $contentType);
 
         // If we are fortunate enough to get an attachment ID, then
-        // use that. Otherwise we want to create on in a deterministic
-        // way.
+        // use that. Otherwise, create one in a deterministic way.
         $attachment->name = $name;
         $attachment->filename = $filename;
         $attachment->mimeType = $contentType;
@@ -715,8 +665,8 @@ class Mailbox
                     'Unsure about how to decode.');
             }
 
-            // Depending on file extension, we may need to base64_decode
-            // the data.
+            // Depending on file extension, we may need to
+            // base64_decode the data.
             $decoded = base64_decode($content, true);
             $data = $decoded ?: $content;
         }
