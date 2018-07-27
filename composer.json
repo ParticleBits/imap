@@ -30,8 +30,8 @@
     "require": {
         "php": "^5.6 || ^7.0",
         "ext-iconv": "*",
-        "particlebits/zend-mail": "dev-master@dev",
-        "particlebits/zend-mime": "dev-master@dev"
+        "particlebits/zend-mail": "@dev",
+        "particlebits/zend-mime": "@dev"
     },
     "autoload": {
         "psr-4": {

@@ -17,7 +17,7 @@ favour of the Zend Mail library.
 ```
 {
     "require": {
-        "particlebits/imap": "~1.0"
+        "particlebits/imap": "^1.2"
     }
 }
 ```
@@ -25,7 +25,7 @@ favour of the Zend Mail library.
 *or*
 
 ```
-$> composer require particlebits/imap ~1.0
+$> composer require particlebits/imap ^1.2
 ```
 
 ### Usage Example
@@ -36,15 +36,16 @@ $mailbox = new \Pb\Imap\Mailbox(
     "something@gmail.com",
     "**********",
     "INBOX",
-    __DIR__ .'/attachments', [
-        \Pb\Imap\Mailbox::OPT_DEBUG_MODE => TRUE
+    __DIR__ .'/attachments',
+    [
+        \Pb\Imap\Mailbox::OPT_DEBUG_MODE => true
     ]);
-$messageIds = $mailbox->searchMailBox( 'ALL' );
+$messageIds = $mailbox->searchMailBox('ALL');
 
-foreach ( $messageIds as $messageId ) {
-    $message = $mailbox->getMessage( $messageId );
-    print_r( $message );
-    print_r( $message->getAttachments() );
+foreach ( $messageIds as $messageId) {
+    $message = $mailbox->getMessage($messageId);
+    print_r($message);
+    print_r($message->getAttachments());
 }
 ```
 
