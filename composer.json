@@ -17,18 +17,8 @@
             "email": "mike@particlebits.com"
         }
     ],
-    "repositories": [
-        {
-            "type": "vcs",
-            "url": "https://github.com/ParticleBits/zend-mail"
-        },
-        {
-            "type": "vcs",
-            "url": "https://github.com/ParticleBits/zend-mime"
-        }
-    ],
     "require": {
-        "php": "^5.6 || ^7.0 || ^7.1 || 7.2",
+        "php": ">=5.6",
         "ext-iconv": "*",
         "particlebits/zend-mail": "@dev",
         "particlebits/zend-mime": "@dev"
