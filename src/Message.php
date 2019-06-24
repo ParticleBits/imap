@@ -94,7 +94,7 @@ class Message
         return [];
     }
 
-    public function replaceInternalLinks($baseUri)
+    public function replaceInternalLinks(string $baseUri)
     {
         $fetchedHtml = $this->textHtml;
         $baseUri = rtrim($baseUri, '\\/').'/';
@@ -106,7 +106,8 @@ class Message
                 $fetchedHtml = str_replace(
                     $placeholder,
                     $baseUri.$basename,
-                    $fetchedHtml);
+                    $fetchedHtml
+                );
             }
         }
 

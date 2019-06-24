@@ -17,8 +17,11 @@ class File
      * @param string $mimeType
      * @param string $default
      */
-    public static function addExtensionIfMissing(&$filename, $mimeType, $default = null)
-    {
+    public static function addExtensionIfMissing(
+        string &$filename,
+        string $mimeType,
+        string $default = null
+    ) {
         if (! $filename || ! strlen($filename)) {
             return null;
         }
@@ -34,8 +37,7 @@ class File
 
         if (isset(self::$mimeExtensions[$mimeType])) {
             $filename = $filename.'.'.self::$mimeExtensions[$mimeType];
-        }
-        elseif ($default) {
+        } elseif ($default) {
             $filename = $filename.'.'.$default;
         }
     }
@@ -47,11 +49,14 @@ class File
      * @param string $fromEncoding
      * @param string $toEncoding
      *
-     * @return string Converted string if conversion was successful, or the
-     *   original string if not
+     * @return string Converted string if conversion was successful,
+     *   or the original string if not
      */
-    public static function convertEncoding($string, $fromEncoding, $toEncoding)
-    {
+    public static function convertEncoding(
+        string $string,
+        string $fromEncoding,
+        string $toEncoding
+    ) {
         if (! $fromEncoding) {
             return $string;
         }
@@ -62,13 +67,15 @@ class File
             $convertedString = @iconv(
                 $fromEncoding,
                 $toEncoding.'//IGNORE',
-                $string);
+                $string
+            );
 
             if (! $convertedString && extension_loaded('mbstring')) {
                 $convertedString = @mb_convert_encoding(
                     $string,
                     $toEncoding,
-                    $fromEncoding);
+                    $fromEncoding
+                );
             }
         }
 
@@ -82,7 +89,7 @@ class File
      *
      * @return string
      */
-    public static function decode7Bit($string)
+    public static function decode7Bit(string $string)
     {
         // If there are no spaces on the first line, assume that the
         // body is actually base64-encoded, and decode it.

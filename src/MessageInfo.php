@@ -8,6 +8,7 @@ namespace Pb\Imap;
 
 use stdClass;
 use Exception;
+use Zend\Mail\Headers;
 use Zend\Mail\Storage;
 
 class MessageInfo
@@ -45,21 +46,21 @@ class MessageInfo
         'content-type' => 'contentType'
     ];
 
-    public function __construct($id)
+    public function __construct(string $id)
     {
         $this->messageNum = $id;
         $this->flags = new stdClass;
         $this->headers = new stdClass;
     }
 
-    public function addFlags($flags)
+    public function addFlags(array $flags)
     {
         foreach (self::FLAG_MAP as $field => $key) {
             $this->flags->$key = isset($flags[$field]);
         }
     }
 
-    public function addHeaders($headers)
+    public function addHeaders(Headers $headers)
     {
         $this->rawHeaders = $headers->toString();
 
@@ -77,7 +78,9 @@ class MessageInfo
                 try {
                     $header = $headers->get($field);
                     $this->headers->$key = $header;
-                } catch (Exception $e) {}
+                } catch (Exception $e) {
+                    // Ignore
+                }
             }
 
             // We only want one in case, say, subject came in twice

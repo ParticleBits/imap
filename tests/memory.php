@@ -6,7 +6,8 @@
 include __DIR__.'/../vendor/autoload.php';
 gc_enable();
 
-function usage() {
+function usage()
+{
     echo 'Please edit the contents of secret.ini with '
         ."your email credentials\n";
     exit;

@@ -17,7 +17,7 @@ class Imap extends ZendImap
      *
      * @return null|array
      */
-    public function examineFolder($globalName)
+    public function examineFolder(string $globalName)
     {
         $this->currentFolder = $globalName;
         $examine = $this->protocol->examine($this->currentFolder);
@@ -26,7 +26,8 @@ class Imap extends ZendImap
             $this->currentFolder = '';
 
             throw new RuntimeException(
-                "Cannot examine folder, maybe it doesn't exist");
+                "Cannot examine folder, maybe it doesn't exist"
+            );
         }
 
         return $examine;
@@ -39,6 +40,7 @@ class Imap extends ZendImap
      *   global name of folder or instance for subfolder
      *
      * @throws RuntimeException
+     * @throws Protocol\Exception\RuntimeException
      *
      * @return null|array
      */
@@ -51,7 +53,8 @@ class Imap extends ZendImap
             $this->currentFolder = '';
 
             throw new RuntimeException(
-                "Cannot select folder, maybe it doesn't exist");
+                "Cannot select folder, maybe it doesn't exist"
+            );
         }
 
         return $select;
@@ -69,7 +72,7 @@ class Imap extends ZendImap
      *
      * @return array
      */
-    public function search(array $params, $uid = false)
+    public function search(array $params, bool $uid = false)
     {
         return $this->protocol->search($params, $uid);
     }

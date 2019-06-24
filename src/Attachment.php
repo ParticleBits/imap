@@ -60,20 +60,18 @@ class Attachment
      *
      * @return string
      */
-    protected static function generateAttachmentId(Message $message, $partNum)
+    protected static function generateAttachmentId(Message $message, int $partNum)
     {
         // Unique ID is a concatenation of the unique ID and a
         // hash of the combined date, from address, subject line,
         // part number, and message ID.
-        return md5(
-            sprintf(
-                '%s-%s-%s-%s-%s',
-                $message->date,
-                $message->fromAddress,
-                $message->subject,
-                $partNum,
-                $message->messageId
-            ));
+        return md5(sprintf('%s-%s-%s-%s-%s',
+            $message->date,
+            $message->fromAddress,
+            $message->subject,
+            $partNum,
+            $message->messageId
+        ));
     }
 
     /**
@@ -85,7 +83,7 @@ class Attachment
      * @param Message $message
      * @param string $baseDir
      */
-    public function generateFilepath(Message $message, $baseDir)
+    public function generateFilepath(Message $message, string $baseDir)
     {
         $replace = [
             '/\s/' => '_',
@@ -168,14 +166,13 @@ class Attachment
         ];
     }
 
-    private function checkDirWriteable($dir, $create = true, $permission = 0755)
+    private function checkDirWriteable(string $dir, bool $create = true, int $permission = 0755)
     {
         if (file_exists($dir)) {
             if (! is_writable($dir)) {
                 throw new Exception("Directory exists but is not writeable: $dir ");
             }
-        }
-        else {
+        } else {
             // Create the date directory and save the file
             if ($create && ! @mkdir($dir, $permission, true)) {
                 throw new Exception("Couldn't create directory: $dir");
