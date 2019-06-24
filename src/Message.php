@@ -39,7 +39,7 @@ class Message
     /**
      * @var Attachment []
      */
-    protected $attachments = [];
+    private $attachments = [];
 
     /**
      * Store a new attachment to the internal array.

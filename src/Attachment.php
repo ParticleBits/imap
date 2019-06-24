@@ -19,10 +19,10 @@ class Attachment
     private $part;
 
     // Created during generate attachment file paths
-    protected $baseDir;
-    protected $fileSysName;
-    protected $fileSysPath;
-    protected $fileDatePath;
+    private $baseDir;
+    private $fileSysName;
+    private $fileSysPath;
+    private $fileDatePath;
 
     public function __construct(Part $part)
     {

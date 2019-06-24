@@ -17,7 +17,7 @@ class Imap extends ZendImap
      *
      * @return null|array
      */
-    public function examineFolder(string $globalName)
+    public function examineFolder($globalName)
     {
         $this->currentFolder = $globalName;
         $examine = $this->protocol->examine($this->currentFolder);
@@ -75,5 +75,47 @@ class Imap extends ZendImap
     public function search(array $params, bool $uid = false)
     {
         return $this->protocol->search($params, $uid);
+    }
+
+    /**
+     * Adds flags for a message. This wrapper properly handles the
+     * extra arguments that the protocol method takes.
+     *
+     * NOTE: this method can't set the recent flag.
+     *
+     * @param int $id number of message
+     * @param array $flags new flags for message
+     *
+     * @throws RuntimeException
+     */
+    public function addFlags(int $id, array $flags)
+    {
+        if (! $this->protocol->store($flags, $id, null, '+', true)) {
+            throw new RuntimeException(
+                'Cannot add flags; have you tried to set the '.
+                'recent flag or special chars?'
+            );
+        }
+    }
+
+    /**
+     * Removes flags for a message. This wrapper properly handles the
+     * extra arguments that the protocol method takes.
+     *
+     * NOTE: this method can't remove the recent flag.
+     *
+     * @param int $id number of message
+     * @param array $flags flags to remove from message
+     *
+     * @throws RuntimeException
+     */
+    public function removeFlags(int $id, array $flags)
+    {
+        if (! $this->protocol->store($flags, $id, null, '-', true)) {
+            throw new RuntimeException(
+                'Cannot remove flags; have you tried to set the '.
+                'recent flag or special chars?'
+            );
+        }
     }
 }

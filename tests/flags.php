@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Test script. This checks for memory leaks.
+ * Test script. This tests flag setting.
  */
 include __DIR__.'/../vendor/autoload.php';
 gc_enable();
@@ -11,6 +11,19 @@ function usage()
     echo 'Please edit the contents of secret.ini with '
         ."your email credentials\n";
     exit;
+}
+
+function getFlags($flags)
+{
+    $set = [];
+
+    foreach ($flags as $flag => $value) {
+        if ((int) $value === 1) {
+            $set[] = $flag;
+        }
+    }
+
+    return $set;
 }
 
 // Check if secret file exists. If not create a basic one
@@ -40,15 +53,21 @@ echo <<<STR
 My PID is: $pid
 Run this in another terminal:
 $> watch -n 1 ps -o vsz $pid\n
-This script only works with a GMail address!\n\n
+This script only works with a GMail address!\n
+This script modifies the flags on message 1 of the INBOX!\n
 STR;
 
-$index = 1;
+$line = readline('Do you want to continue? [y/N] ');
+
+if ($line !== 'y' && $line !== 'Y') {
+    exit(0);
+}
+
+$flags = [ '\Seen', '\Flagged' ];
 $config = parse_ini_file(__DIR__.'/secret.ini');
 $email = isset($config['email']) ? $config['email'] : '';
 $folder = isset($config['folder']) ? $config['folder'] : '';
 $password = isset($config['password']) ? $config['password'] : '';
-$startFrom = isset($config['startfrom']) ? $config['startfrom'] : 0;
 
 try {
     $mailbox = new \Pb\Imap\Mailbox(
@@ -60,27 +79,17 @@ try {
             \Pb\Imap\Mailbox::OPT_DEBUG_MODE => true
         ]);
 
-    $mailbox->debug('Starting search');
-    $messageIds = $mailbox->search('ALL');
-    $count = count($messageIds);
-    $mailbox->debug("Fetched $count message IDs");
+    $message = $mailbox->getMessage(1);
+    print_r($message);
+    exit;
+    $messageData = [ $folder ?: 'INBOX' => (object) [ 'ids' => [ 1 ] ] ];
+    $mailbox->debug('Current flags: '. implode(', ', getFlags($message->flags)));
 
-    foreach ($messageIds as $messageId) {
-        if ($messageId < $startFrom) {
-            ++$index;
-            continue;
-        }
-
-        $mailbox->debug("Fetching message $index of $count (ID $messageId)");
-        // Pull the contents of the message
-        $message = $mailbox->getMessage($messageId);
-        $mailbox->debug('After message info was downloaded');
-        $message = null;
-        unset($message);
-        $mailbox->debug('After message was unset()');
-        // Cleanup
-        $mailbox->debug(str_repeat('-', 20));
-        ++$index;
+    foreach ($flags as $flag) {
+        $mailbox->debug('Setting message as '. $flag);
+        $newFlags = $mailbox->addFlags($messageData, [ $flag ]);
+        $mailbox->debug('Unsetting message as '. $flag);
+        $newFlags = $mailbox->removeFlags($messageData, [ $flag ]);
         gc_collect_cycles();
         usleep(100000);
     }

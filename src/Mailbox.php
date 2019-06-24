@@ -9,27 +9,26 @@ use Zend\Mime\Mime;
 use Zend\Mime\Decode;
 use RuntimeException;
 use Zend\Mail\Headers;
+use Zend\Mail\Storage;
 use Zend\Mail\Storage\Part;
 use RecursiveIteratorIterator as Iterator;
 use Pb\Imap\Exceptions\MessageSizeLimit as MessageSizeLimitException;
 
 /**
- * Author of this library:.
- *
  * @see https://github.com/particlebits/imap
  *
  * @author Mike Gioia https://particlebits.com
  */
 class Mailbox
 {
-    protected $imapHost;
-    protected $imapLogin;
-    protected $imapFolder;
-    protected $imapPassword;
-    protected $attachmentsDir;
-    protected $imapParams = [];
-    protected $imapOptions = 0;
-    protected $imapRetriesNum = 0;
+    private $imapHost;
+    private $imapLogin;
+    private $imapFolder;
+    private $imapPassword;
+    private $attachmentsDir;
+    private $imapParams = [];
+    private $imapOptions = 0;
+    private $imapRetriesNum = 0;
 
     private $options;
     private $memoryLimit = 0;
@@ -42,7 +41,16 @@ class Mailbox
     ];
 
     // Internal reference to IMAP connection
-    protected $imapStream;
+    private $imapStream;
+
+    private static $validFlags = [
+        Storage::FLAG_SEEN,
+        Storage::FLAG_UNSEEN,
+        Storage::FLAG_ANSWERED,
+        Storage::FLAG_FLAGGED,
+        Storage::FLAG_DELETED,
+        Storage::FLAG_DRAFT
+    ];
 
     // Option constants
     const OPT_DEBUG_MODE = 'debug_mode';
@@ -260,6 +268,54 @@ class Mailbox
     public function select(string $folder)
     {
         return $this->getImapStream()->selectFolder($folder);
+    }
+
+    /**
+     * Updates flags across multiple messages/folders.
+     *
+     * @param array $messageData Indexed by folder name, contains
+     *   a property `ids` for the message IDs, and an optional
+     *   `flags` that can overwrite the flags param.
+     * @param array $flags
+     *
+     * @throws RunTimeException
+     */
+    public function addFlags(array $messageData, array $flags = [])
+    {
+        return $this->updateFlags($messageData, $flags, '+');
+    }
+
+    public function removeFlags(array $messageData, array $flags = [])
+    {
+        return $this->updateFlags($messageData, $flags, '-');
+    }
+
+    private function updateFlags(array $messageData, array $flags, string $mode = '+')
+    {
+        foreach ($messageData as $folder => $data) {
+            try {
+                if ($folder) {
+                    $this->select($folder);
+                }
+
+                foreach ($data->ids ?? [] as $id) {
+                    $flags = array_intersect(self::$validFlags, $data->flags ?? $flags);
+
+                    if ($id && $flags) {
+                        if ($mode === '+') {
+                            $this->getImapStream()->addFlags($id, $flags);
+                        } else {
+                            $this->getImapStream()->removeFlags($id, $flags);
+                        }
+                    }
+                }
+            } catch (Exception $e) {
+                throw new RuntimeException(
+                    "There was a problem setting the flags for message $id. ".
+                    ucfirst($e->getMessage())
+                );
+            }
+        }
     }
 
     /**
