@@ -26,7 +26,7 @@ MB during large attachment downloads.
 ```
 {
     "require": {
-        "particlebits/imap": "^1.3"
+        "particlebits/imap": "^2.0"
     }
 }
 ```
@@ -34,7 +34,7 @@ MB during large attachment downloads.
 *or*
 
 ```
-$> composer require particlebits/imap ^1.3
+$> composer require particlebits/imap ^2.0
 ```
 
 ### Usage Example
