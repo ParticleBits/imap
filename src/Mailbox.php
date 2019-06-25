@@ -273,48 +273,52 @@ class Mailbox
     /**
      * Updates flags across multiple messages/folders.
      *
-     * @param array $messageData Indexed by folder name, contains
-     *   a property `ids` for the message IDs, and an optional
-     *   `flags` that can overwrite the flags param.
-     * @param array $flags
+     * @param array $ids Message IDs to update
+     * @param array $flags Set of flags to add
+     * @param string $folder Optional folder to switch to
      *
      * @throws RunTimeException
      */
-    public function addFlags(array $messageData, array $flags = [])
+    public function addFlags(array $ids, array $flags = [], string $folder = null)
     {
-        return $this->updateFlags($messageData, $flags, '+');
+        return $this->updateFlags($ids, $flags, '+', $folder);
     }
 
-    public function removeFlags(array $messageData, array $flags = [])
+    public function removeFlags(array $ids, array $flags = [], string $folder = null)
     {
-        return $this->updateFlags($messageData, $flags, '-');
+        return $this->updateFlags($ids, $flags, '-', $folder);
     }
 
-    private function updateFlags(array $messageData, array $flags, string $mode = '+')
-    {
-        foreach ($messageData as $folder => $data) {
-            try {
-                if ($folder) {
-                    $this->select($folder);
-                }
-
-                foreach ($data->ids ?? [] as $id) {
-                    $flags = array_intersect(self::$validFlags, $data->flags ?? $flags);
-
-                    if ($id && $flags) {
-                        if ($mode === '+') {
-                            $this->getImapStream()->addFlags($id, $flags);
-                        } else {
-                            $this->getImapStream()->removeFlags($id, $flags);
-                        }
-                    }
-                }
-            } catch (Exception $e) {
-                throw new RuntimeException(
-                    "There was a problem setting the flags for message $id. ".
-                    ucfirst($e->getMessage())
-                );
+    private function updateFlags(
+        array $ids,
+        array $flags,
+        string $mode,
+        string $folder = null
+    ) {
+        try {
+            if ($folder && $folder !== $this->imapFolder) {
+                $this->select($folder);
             }
+
+            $ids = array_filter($ids);
+            $flags = array_intersect(self::$validFlags, $flags);
+
+            if (! $flags || ! $ids) {
+                return;
+            }
+
+            foreach ($ids as $id) {
+                if ($mode === '+') {
+                    $this->getImapStream()->addFlags($id, $flags);
+                } else {
+                    $this->getImapStream()->removeFlags($id, $flags);
+                }
+            }
+        } catch (Exception $e) {
+            throw new RuntimeException(
+                "There was a problem setting the flags for message $id. ".
+                ucfirst($e->getMessage())
+            );
         }
     }
 

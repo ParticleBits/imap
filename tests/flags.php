@@ -63,7 +63,7 @@ if ($line !== 'y' && $line !== 'Y') {
     exit(0);
 }
 
-$flags = [ '\Seen', '\Flagged' ];
+$flags = ['\Seen', '\Flagged'];
 $config = parse_ini_file(__DIR__.'/secret.ini');
 $email = isset($config['email']) ? $config['email'] : '';
 $folder = isset($config['folder']) ? $config['folder'] : '';
@@ -80,16 +80,13 @@ try {
         ]);
 
     $message = $mailbox->getMessage(1);
-    print_r($message);
-    exit;
-    $messageData = [ $folder ?: 'INBOX' => (object) [ 'ids' => [ 1 ] ] ];
     $mailbox->debug('Current flags: '. implode(', ', getFlags($message->flags)));
 
     foreach ($flags as $flag) {
         $mailbox->debug('Setting message as '. $flag);
-        $newFlags = $mailbox->addFlags($messageData, [ $flag ]);
+        $newFlags = $mailbox->addFlags([1], [$flag]);
         $mailbox->debug('Unsetting message as '. $flag);
-        $newFlags = $mailbox->removeFlags($messageData, [ $flag ]);
+        $newFlags = $mailbox->removeFlags([1], [$flag]);
         gc_collect_cycles();
         usleep(100000);
     }
