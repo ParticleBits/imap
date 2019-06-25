@@ -25,9 +25,9 @@ MB during large attachment downloads.
 
 ```
 {
-    "require": {
-        "particlebits/imap": "^2.0"
-    }
+  "require": {
+    "particlebits/imap": "^2.0"
+  }
 }
 ```
 
@@ -51,7 +51,7 @@ $mailbox = new \Pb\Imap\Mailbox(
     ]);
 $messageIds = $mailbox->searchMailBox('ALL');
 
-foreach ( $messageIds as $messageId) {
+foreach ($messageIds as $messageId) {
     $message = $mailbox->getMessage($messageId);
     print_r($message);
     print_r($message->getAttachments());
