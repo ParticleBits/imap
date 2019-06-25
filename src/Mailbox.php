@@ -273,6 +273,19 @@ class Mailbox
     }
 
     /**
+     * Copies a message to another folder.
+     *
+     * @param string $folder
+     * @param int $id
+     *
+     * @return bool
+     */
+    public function copy(string $folder, int $id)
+    {
+        return $this->getImapStream()->copy($folder, $id);
+    }
+
+    /**
      * Updates flags across multiple messages/folders.
      *
      * @param array $ids Message IDs to update
@@ -280,6 +293,8 @@ class Mailbox
      * @param string $folder Optional folder to switch to
      *
      * @throws RunTimeException
+     *
+     * @return bool
      */
     public function addFlags(array $ids, array $flags = [], string $folder = null)
     {
@@ -291,6 +306,9 @@ class Mailbox
         return $this->updateFlags($ids, $flags, '-', $folder);
     }
 
+    /**
+     * @throws RuntimeException
+     */
     private function updateFlags(
         array $ids,
         array $flags,
