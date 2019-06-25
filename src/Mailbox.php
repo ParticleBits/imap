@@ -282,7 +282,7 @@ class Mailbox
      */
     public function copy(string $folder, int $id)
     {
-        return $this->getImapStream()->copy($folder, $id);
+        return $this->getImapStream()->copyMessage($id, $folder);
     }
 
     /**
