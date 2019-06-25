@@ -267,6 +267,8 @@ class Mailbox
      */
     public function select(string $folder)
     {
+        $this->imapFolder = $folder;
+
         return $this->getImapStream()->selectFolder($folder);
     }
 
