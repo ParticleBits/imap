@@ -559,7 +559,7 @@ class Mailbox
         // so if that's the content type then skip out.
         if (($headers->has('x-attachment-id')
                 || $headers->has('content-disposition'))
-            && ! $this->isTextType($contentType)
+            && ! self::isTextType($contentType)
             && Mime::MESSAGE_RFC822 === ! $contentType
         ) {
             $this->processAttachment($message, $part);
@@ -577,7 +577,7 @@ class Mailbox
             ? strtolower($part->getHeaderField('content-type'))
             : null;
 
-        if ($this->isMultipartType($contentType)) {
+        if (self::isMultipartType($contentType)) {
             $boundary = $part->getHeaderField('content-type', 'boundary');
 
             if ($boundary) {
@@ -603,11 +603,14 @@ class Mailbox
                 $wrappedPart->partNum = $part->partNum;
                 $this->processContent($message, $wrappedPart);
             }
-        } elseif ($this->isTextType($contentType) || ! $contentType) {
+        } elseif (self::isTextType($contentType) || ! $contentType) {
             $this->processTextContent(
                 $message,
                 $contentType,
-                self::convertContent($part->getContent(), $part->getHeaders()),
+                self::convertContent(
+                    $part->getContent(),
+                    $contentType,
+                    $part->getHeaders()),
                 ($contentType
                     ? $part->getHeaderField('content-type', 'charset')
                     : 'US-ASCII'));
@@ -714,6 +717,7 @@ class Mailbox
 
     public static function convertContent(
         string $content,
+        string $contentType,
         Headers $headers,
         bool $failOnNoEncode = false
     ) {
@@ -740,6 +744,11 @@ class Mailbox
         }
 
         if (is_null($data)) {
+            // If it's simple text just return it back
+            if (self::isTextType($contentType)) {
+               return $content;
+            }
+
             if (true === $failOnNoEncode) {
                 throw new RuntimeException(
                     'Missing Content-Transfer-Encoding header. '.
@@ -756,7 +765,7 @@ class Mailbox
         return $data;
     }
 
-    private function isMultipartType(string $contentType)
+    private static function isMultipartType(string $contentType)
     {
         return in_array(
             $contentType, [
@@ -769,7 +778,7 @@ class Mailbox
             ]);
     }
 
-    private function isTextType(string $contentType)
+    private static function isTextType(string $contentType)
     {
         return in_array(
             $contentType, [
