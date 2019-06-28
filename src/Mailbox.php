@@ -343,6 +343,20 @@ class Mailbox
     }
 
     /**
+     * Wrapped to retrieve a message number from a unique ID.
+     *
+     * @param int $id
+     *
+     * @throws Exception\InvalidArgumentException
+     *
+     * @return int
+     */
+    public function getNumberByUniqueId(int $uniqueId)
+    {
+        return $this->getImapStream()->getNumberByUniqueId($uniqueId);
+    }
+
+    /**
      * Fetch headers for listed message IDs. Returns an object in
      * the following format:
      *   uid: integer,
@@ -609,8 +623,8 @@ class Mailbox
                 $contentType,
                 self::convertContent(
                     $part->getContent(),
-                    $contentType,
-                    $part->getHeaders()),
+                    $part->getHeaders(),
+                    $contentType),
                 ($contentType
                     ? $part->getHeaderField('content-type', 'charset')
                     : 'US-ASCII'));
@@ -717,8 +731,8 @@ class Mailbox
 
     public static function convertContent(
         string $content,
-        string $contentType,
         Headers $headers,
+        string $contentType = null,
         bool $failOnNoEncode = false
     ) {
         $data = null;
@@ -778,10 +792,10 @@ class Mailbox
             ]);
     }
 
-    private static function isTextType(string $contentType)
+    private static function isTextType(string $contentType = null)
     {
-        return in_array(
-            $contentType, [
+        return ! is_null($contentType)
+            && in_array($contentType, [
                 Mime::TYPE_XML,
                 Mime::TYPE_TEXT,
                 Mime::TYPE_HTML,
