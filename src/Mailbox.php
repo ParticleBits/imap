@@ -273,6 +273,19 @@ class Mailbox
     }
 
     /**
+     * Sends the expunge command to the mailbox. This removes any
+     * messages with the \Deleted flag.
+     */
+    public function expunge(string $folder = null)
+    {
+        if ($folder) {
+            $this->select($folder);
+        }
+
+        return $this->getImapStream()->expunge();
+    }
+
+    /**
      * Copies a message to another folder.
      *
      * @param string $folder

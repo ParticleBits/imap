@@ -118,4 +118,16 @@ class Imap extends ZendImap
             );
         }
     }
+
+    /**
+     * Wrapper around the expunge command.
+     *
+     * @throws RuntimeException
+     */
+    public function expunge()
+    {
+        if (! $this->protocol->expunge()) {
+            throw new RuntimeException('Failed to expunge folder');
+        }
+    }
 }
