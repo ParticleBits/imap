@@ -56,11 +56,11 @@ class Attachment
      * name, date, filename, etc and hashes the result.
      *
      * @param Message $message
-     * @param int $partNum
+     * @param string $partNum Can take the form "1.2.1", not always an int
      *
      * @return string
      */
-    protected static function generateAttachmentId(Message $message, int $partNum)
+    protected static function generateAttachmentId(Message $message, string $partNum)
     {
         // Unique ID is a concatenation of the unique ID and a
         // hash of the combined date, from address, subject line,

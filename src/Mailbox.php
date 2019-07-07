@@ -603,6 +603,12 @@ class Mailbox
         $contentType = $headers->has('content-type')
             ? strtolower($part->getHeaderField('content-type'))
             : null;
+        $charsetHeader = $contentType
+            ? $part->getHeaderField('content-type', 'charset')
+            : null;
+        $charset = $contentType
+            ? ($charsetHeader ?: 'US-ASCII')
+            :  'US-ASCII';
 
         if (self::isMultipartType($contentType)) {
             $boundary = $part->getHeaderField('content-type', 'boundary');
@@ -633,14 +639,12 @@ class Mailbox
         } elseif (self::isTextType($contentType) || ! $contentType) {
             $this->processTextContent(
                 $message,
-                $contentType,
+                $contentType ?: '',
                 self::convertContent(
                     $part->getContent(),
                     $part->getHeaders(),
                     $contentType),
-                ($contentType
-                    ? $part->getHeaderField('content-type', 'charset')
-                    : 'US-ASCII'));
+                $charset);
         } else {
             $this->processAttachment($message, $part);
         }
@@ -792,7 +796,7 @@ class Mailbox
         return $data;
     }
 
-    private static function isMultipartType(string $contentType)
+    private static function isMultipartType(string $contentType = null)
     {
         return in_array(
             $contentType, [
