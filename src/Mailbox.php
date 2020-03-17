@@ -36,9 +36,9 @@ class Mailbox
 
     // Default options
     private $defaults = [
-        OPT_DEBUG_MODE => false,
-        OPT_SKIP_ATTACHMENTS => false,
-        OPT_SSL => 'SSL'
+        self::OPT_DEBUG_MODE => false,
+        self::OPT_SKIP_ATTACHMENTS => false,
+        self::OPT_SSL => 'SSL'
     ];
 
     // Internal reference to IMAP connection
@@ -116,7 +116,7 @@ class Mailbox
     protected function loadImapStream()
     {
         $imapStream = new Imap([
-            'ssl' => $this->options['ssl'],
+            'ssl' => $this->options[self::OPT_SSL],
             'host' => $this->imapHost,
             'user' => $this->imapLogin,
             'folder' => $this->imapFolder,
