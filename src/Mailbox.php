@@ -36,8 +36,9 @@ class Mailbox
 
     // Default options
     private $defaults = [
-        'debug_mode' => false,
-        'skip_attachments' => false
+        self::OPT_DEBUG_MODE => false,
+        self::OPT_SKIP_ATTACHMENTS => false,
+        self::OPT_SSL => 'SSL'
     ];
 
     // Internal reference to IMAP connection
@@ -55,6 +56,7 @@ class Mailbox
     // Option constants
     const OPT_DEBUG_MODE = 'debug_mode';
     const OPT_SKIP_ATTACHMENTS = 'skip_attachments';
+    const OPT_SSL = 'ssl';
 
     /**
      * Sets up a new mailbox object with the IMAP credentials to connect.
@@ -114,7 +116,7 @@ class Mailbox
     protected function loadImapStream()
     {
         $imapStream = new Imap([
-            'ssl' => 'SSL',
+            'ssl' => $this->options[self::OPT_SSL],
             'host' => $this->imapHost,
             'user' => $this->imapLogin,
             'folder' => $this->imapFolder,
