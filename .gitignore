@@ -2,3 +2,4 @@ vendor
 *.orig
 tests/secret.ini
 tests/attachments
+.idea
