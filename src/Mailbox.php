@@ -177,12 +177,13 @@ class Mailbox
      * This function returns an object containing listing the folders.
      * The object has the following properties:
      *   messages, recent, unseen, uidnext, and uidvalidity.
-     *
+     * @param  string $rootFolder get folder structure for given folder, else root
+     * @param  bool $subscribedOnly get only subscribed folders or all folders
      * @return RecursiveIteratorIterator
      */
-    public function getFolders(string $rootFolder = null)
+    public function getFolders(string $rootFolder = null, $subscribedOnly = false)
     {
-        $folders = $this->getImapStream()->getFolders($rootFolder);
+        $folders = $this->getImapStream()->getFolders($rootFolder, $subscribedOnly);
 
         if (! $folders) {
             return [];
