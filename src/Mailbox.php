@@ -120,7 +120,14 @@ class Mailbox
             'host' => $this->imapHost,
             'user' => $this->imapLogin,
             'folder' => $this->imapFolder,
-            'password' => $this->imapPassword
+            'password' => $this->imapPassword,
+            'ssl_context_options' => [
+                'ssl' => [
+                    'verify_peer' => true,
+                    'verify_peer_name' => false,
+                    'allow_self_signed' => true
+                ]
+            ]
         ]);
 
         if (! $imapStream) {
