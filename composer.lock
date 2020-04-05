@@ -185,16 +185,16 @@
         },
         {
             "name": "laminas/laminas-mime",
-            "version": "dev-latest",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/ParticleBits/laminas-mime.git",
-                "reference": "68def11e603d6225939a784c3171cc3cb3af5e16"
+                "reference": "f441a44c16dfa6f38be9ad5d9d1b3c80c6569bba"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ParticleBits/laminas-mime/zipball/68def11e603d6225939a784c3171cc3cb3af5e16",
-                "reference": "68def11e603d6225939a784c3171cc3cb3af5e16",
+                "url": "https://api.github.com/repos/ParticleBits/laminas-mime/zipball/f441a44c16dfa6f38be9ad5d9d1b3c80c6569bba",
+                "reference": "f441a44c16dfa6f38be9ad5d9d1b3c80c6569bba",
                 "shasum": ""
             },
             "require": {
@@ -265,7 +265,7 @@
                 "chat": "https://laminas.dev/chat",
                 "forum": "https://discourse.laminas.dev"
             },
-            "time": "2020-04-05T20:26:33+00:00"
+            "time": "2020-04-05T21:31:49+00:00"
         },
         {
             "name": "laminas/laminas-stdlib",

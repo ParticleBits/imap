@@ -1,6 +1,6 @@
 {
     "name": "particlebits/imap",
-    "description": "PHP class to access an IMAP mailbox. Specifically uses the Zend library and not the IMAP extension.",
+    "description": "PHP class to access an IMAP mailbox. Specifically uses the Laminas library and not the IMAP extension.",
     "keywords": [
         "PHP",
         "IMAP",

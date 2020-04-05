@@ -3,16 +3,16 @@
 namespace Pb\Imap;
 
 use DateTime;
-use stdClass;
 use Exception;
-use Zend\Mime\Mime;
-use Zend\Mime\Decode;
-use RuntimeException;
-use Zend\Mail\Headers;
-use Zend\Mail\Storage;
-use Zend\Mail\Storage\Part;
-use RecursiveIteratorIterator as Iterator;
+use Laminas\Mail\Headers;
+use Laminas\Mail\Storage;
+use Laminas\Mail\Storage\Part;
+use Laminas\Mime\Decode;
+use Laminas\Mime\Mime;
 use Pb\Imap\Exceptions\MessageSizeLimit as MessageSizeLimitException;
+use RecursiveIteratorIterator as Iterator;
+use RuntimeException;
+use stdClass;
 
 /**
  * @see https://github.com/particlebits/imap
@@ -102,7 +102,7 @@ class Mailbox
     /**
      * Get IMAP mailbox connection stream.
      *
-     * @return null|Zend\Mail\Protocol\Imap
+     * @return null|\Laminas\Mail\Protocol\Imap
      */
     public function getImapStream()
     {

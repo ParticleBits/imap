@@ -2,7 +2,7 @@
 
 namespace Pb\Imap;
 
-use Zend\Mail\Storage\Message as ImapMessage;
+use Laminas\Mail\Storage\Message as ImapMessage;
 
 class Message
 {

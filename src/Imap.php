@@ -2,15 +2,15 @@
 
 namespace Pb\Imap;
 
+use Laminas\Mail\Storage\Imap as LaminasImap;
 use RuntimeException;
-use Zend\Mail\Storage\Imap as ZendImap;
 
-class Imap extends ZendImap
+class Imap extends LaminasImap
 {
     /**
      * Examine given folder. Folder must be selectable!
      *
-     * @param \Zend\Mail\Storage\Folder|string $globalName
+     * @param \Laminas\Mail\Storage\Folder|string $globalName
      *   global name of folder or instance for subfolder
      *
      * @throws RuntimeException
@@ -36,7 +36,7 @@ class Imap extends ZendImap
     /**
      * Select given folder.
      *
-     * @param \Zend\Mail\Storage\Folder|string $globalName
+     * @param \Laminas\Mail\Storage\Folder|string $globalName
      *   global name of folder or instance for subfolder
      *
      * @throws RuntimeException

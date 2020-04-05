@@ -3,7 +3,7 @@
 namespace Pb\Imap;
 
 use Exception;
-use Zend\Mail\Storage\Part;
+use Laminas\Mail\Storage\Part;
 
 class Attachment
 {
@@ -15,10 +15,14 @@ class Attachment
     public $origName;
     public $origFilename;
 
-    // Zend\Mail\Storage\Part
+    /**
+     * @param Laminas\Mail\Storage\Part
+     */
     private $part;
 
-    // Created during generate attachment file paths
+    /**
+     * Created during generate attachment file paths
+     */
     private $baseDir;
     private $fileSysName;
     private $fileSysPath;

@@ -8,8 +8,8 @@ namespace Pb\Imap;
 
 use stdClass;
 use Exception;
-use Zend\Mail\Headers;
-use Zend\Mail\Storage;
+use Laminas\Mail\Headers;
+use Laminas\Mail\Storage;
 
 class MessageInfo
 {
