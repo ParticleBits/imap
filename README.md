@@ -1,12 +1,12 @@
-# \Pb\Imap
+# Pb\Imap
 
-\Pb\Imap is a library for downloading and parsing IMAP email messages. For
+Pb\Imap is a library for downloading and parsing IMAP email messages. For
 performance reasons, the PHP IMAP extension is specifically *not* used, in
-favor of the Zend Mail library.
+favor of the Laminas Mail library.
 
-Separate forks of the Zend-Mail and Zend-Mime libraries are used and kept
+Separate forks of the Laminas Mail and Laminas Mime libraries are used and kept
 as up to date as possible. These forks are needed to make minor but necessary
-updates that wouldn't be approved in time or at all by the Zend maintainers.
+updates that wouldn't be approved in time or at all by the Laminas maintainers.
 
 Memory performance is the goal of this library and it's been stabilized and
 reduced as much as possible. Depending on file attachment downloads, this
@@ -26,7 +26,7 @@ MB during large attachment downloads.
 ```
 {
   "require": {
-    "particlebits/imap": "^2.0"
+    "particlebits/imap": "^2.1"
   }
 }
 ```
@@ -34,7 +34,7 @@ MB during large attachment downloads.
 *or*
 
 ```
-$> composer require particlebits/imap ^2.0
+$> composer require particlebits/imap ^2.1
 ```
 
 ### Usage Example
@@ -73,8 +73,8 @@ Mailbox constructor:
 This project originally used the PHP IMAP extension for fetching and
 parsing email messages. The extension is not very memory efficient
 for long-running processes, which is my intended use. Instead, this
-library uses the Zend-Mail package. Zend-Mail retrieves messages through
-a socket connection and parses the headers. \Pb\Imap takes this raw
-message object and converts into something more user-friendly.
+library uses the Laminas Mail package. Laminas Mail retrieves messages
+through a socket connection and parses the headers. \Pb\Imap takes this
+raw message object and converts into something more user-friendly.
 
 For more examples see the scripts inside the `tests/` folder.

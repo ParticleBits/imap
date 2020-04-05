@@ -4,17 +4,16 @@
  * Test script. This tests flag setting.
  */
 include __DIR__.'/../vendor/autoload.php';
+
 gc_enable();
 
-function usage()
-{
+function usage() {
     echo 'Please edit the contents of secret.ini with '
         ."your email credentials\n";
     exit;
 }
 
-function getFlags($flags)
-{
+function getFlags($flags) {
     $set = [];
 
     foreach ($flags as $flag => $value) {
