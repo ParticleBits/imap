@@ -9,6 +9,7 @@ class Message
     public $id;
     public $to = [];
     public $cc = [];
+    public $bcc = [];
     public $uid = '';
     public $size = 0;
     public $date = '';
@@ -24,14 +25,14 @@ class Message
     public $messageId = '';
     public $inReplyTo = '';
     public $messageNum = 0;
+    public $rawHeaders = '';
+    public $rawContent = '';
     public $references = '';
     public $dateString = '';
     public $fromString = '';
     public $fromAddress = '';
     public $dateReceived = '';
     public $receivedString = '';
-    public $rawHeaders = '';
-    public $rawContent = '';
 
     // Reference to IMAP message object
     private $imapMessage;
