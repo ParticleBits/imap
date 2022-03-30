@@ -44,8 +44,6 @@ class Message
 
     /**
      * Store a new attachment to the internal array.
-     *
-     * @param Attachment $attachment
      */
     public function addAttachment(Attachment $attachment)
     {
@@ -103,7 +101,7 @@ class Message
 
         foreach ($placeholders as $attachmentId => $placeholder) {
             if (isset($this->attachments[$attachmentId])) {
-                $basename = basename($this->attachments[$attachmentId]->filePath);
+                $basename = basename($this->attachments[$attachmentId]->filepath);
                 $fetchedHtml = str_replace(
                     $placeholder,
                     $baseUri.$basename,

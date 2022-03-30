@@ -6,10 +6,10 @@
 
 namespace Pb\Imap;
 
-use stdClass;
 use Exception;
 use Laminas\Mail\Headers;
 use Laminas\Mail\Storage;
+use stdClass;
 
 class MessageInfo
 {
@@ -19,10 +19,11 @@ class MessageInfo
     public $headers;
     public $message;
     public $charset;
+    public $rawContent;
     public $rawHeaders;
     public $messageNum;
 
-    const FLAG_MAP = [
+    public const FLAG_MAP = [
         Storage::FLAG_SEEN => 'seen',
         Storage::FLAG_DRAFT => 'draft',
         Storage::FLAG_RECENT => 'recent',
@@ -31,7 +32,7 @@ class MessageInfo
         Storage::FLAG_ANSWERED => 'answered'
     ];
 
-    const HEADER_MAP = [
+    public const HEADER_MAP = [
         'to' => 'to',
         'cc' => 'cc',
         'bcc' => 'bcc',

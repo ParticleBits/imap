@@ -16,7 +16,7 @@ class Attachment
     public $origFilename;
 
     /**
-     * @param Laminas\Mail\Storage\Part
+     * @var Part
      */
     private $part;
 
@@ -24,7 +24,6 @@ class Attachment
      * Created during generate attachment file paths
      */
     private $baseDir;
-    private $fileSysName;
     private $fileSysPath;
     private $fileDatePath;
 
@@ -36,15 +35,9 @@ class Attachment
     /**
      * Generate a new, reproducible attachment ID for a message's
      * attachment part.
-     *
-     * @param Message $message
      */
     public function generateId(Message $message)
     {
-        if (! $this->part) {
-            throw new Exception('Part not set on attachment.');
-        }
-
         $headers = $this->part->getHeaders();
         $hasAttachmentId = $headers->has('x-attachment-id');
         $attachmentId = $hasAttachmentId
@@ -52,14 +45,13 @@ class Attachment
             : null;
         $this->id = $hasAttachmentId && $attachmentId
             ? $attachmentId
-            : self::generateAttachmentId($message, $this->part->partNum);
+            : self::generateAttachmentId($message, $this->part->key());
     }
 
     /**
      * Create an ID for a message attachment. This takes the attributes
      * name, date, filename, etc and hashes the result.
      *
-     * @param Message $message
      * @param string $partNum Can take the form "1.2.1", not always an int
      *
      * @return string
@@ -83,9 +75,6 @@ class Attachment
      * attachment part. This will set the path to be inside a
      * folder like 'YYYY/MM' into the $baseDir location. The
      * date part is determined from the $message's date.
-     *
-     * @param Message $message
-     * @param string $baseDir
      */
     public function generateFilepath(Message $message, string $baseDir)
     {
@@ -109,18 +98,17 @@ class Attachment
         // an error in file_put_contents.
         $fileSysName = substr($fileSysName, 0, 250);
         // Create the YYYY/MM directory to put the attachment into
-        $this->fileDatePath = sprintf(
-            '%s%s%s',
+        $this->fileDatePath = sprintf('%s%s%s',
             date('Y', $timestamp),
             DIRECTORY_SEPARATOR,
-            date('m', $timestamp));
+            date('m', $timestamp)
+        );
         $this->filepath = $this->fileDatePath
             .DIRECTORY_SEPARATOR
             .$fileSysName;
         $this->fileSysPath = $this->baseDir
             .DIRECTORY_SEPARATOR
             .$this->filepath;
-        $this->fileSysName = $fileSysName;
     }
 
     /**

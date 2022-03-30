@@ -2,32 +2,36 @@
 
 namespace Pb\Imap;
 
+use Laminas\Mail\Storage\Folder as LaminasFolder;
 use Laminas\Mail\Storage\Imap as LaminasImap;
-use RuntimeException;
+use Pb\Imap\Exceptions\FolderAccessException;
+use Pb\Imap\Exceptions\FolderUpdateException;
+use Pb\Imap\Exceptions\MessageUpdateException;
 
 class Imap extends LaminasImap
 {
     /**
      * Examine given folder. Folder must be selectable!
      *
-     * @param \Laminas\Mail\Storage\Folder|string $globalName
+     * @param LaminasFolder|string $globalName
      *   global name of folder or instance for subfolder
      *
-     * @throws RuntimeException
+     * @throws FolderAccessException
      *
-     * @return null|array
+     * @return array|null
      */
     public function examineFolder($globalName)
     {
-        $this->currentFolder = $globalName;
+        $this->currentFolder = is_string($globalName)
+            ? $globalName
+            : $globalName->getGlobalName();
+
         $examine = $this->protocol->examine($this->currentFolder);
 
         if (! $examine) {
             $this->currentFolder = '';
 
-            throw new RuntimeException(
-                "Cannot examine folder, maybe it doesn't exist"
-            );
+            throw new FolderAccessException($globalName, 'examine');
         }
 
         return $examine;
@@ -36,25 +40,25 @@ class Imap extends LaminasImap
     /**
      * Select given folder.
      *
-     * @param \Laminas\Mail\Storage\Folder|string $globalName
+     * @param LaminasFolder|string $globalName
      *   global name of folder or instance for subfolder
      *
-     * @throws RuntimeException
-     * @throws Protocol\Exception\RuntimeException
+     * @throws FolderAccessException
      *
-     * @return null|array
+     * @return array|null
      */
     public function selectFolder($globalName)
     {
-        $this->currentFolder = $globalName;
+        $this->currentFolder = is_string($globalName)
+            ? $globalName
+            : $globalName->getGlobalName();
+
         $select = $this->protocol->select($this->currentFolder);
 
         if (! $select) {
             $this->currentFolder = '';
 
-            throw new RuntimeException(
-                "Cannot select folder, maybe it doesn't exist"
-            );
+            throw new FolderAccessException($globalName, 'select');
         }
 
         return $select;
@@ -66,9 +70,6 @@ class Imap extends LaminasImap
      * See https://tools.ietf.org/search/rfc4731
      * Returns an array of integers, either the message numbers
      * or the UIDs if that option is enabled.
-     *
-     * @param array $params
-     * @param bool $uid
      *
      * @return array
      */
@@ -86,15 +87,16 @@ class Imap extends LaminasImap
      * @param int $id number of message
      * @param array $flags new flags for message
      *
-     * @throws RuntimeException
+     * @throws MessageUpdateException
      */
     public function addFlags(int $id, array $flags)
     {
         if (! $this->protocol->store($flags, $id, null, '+', true)) {
-            throw new RuntimeException(
+            $message =
                 'Cannot add flags; have you tried to set the '.
-                'recent flag or special chars?'
-            );
+                'recent flag or special chars?';
+
+            throw new MessageUpdateException($message);
         }
     }
 
@@ -107,27 +109,28 @@ class Imap extends LaminasImap
      * @param int $id number of message
      * @param array $flags flags to remove from message
      *
-     * @throws RuntimeException
+     * @throws MessageUpdateException
      */
     public function removeFlags(int $id, array $flags)
     {
         if (! $this->protocol->store($flags, $id, null, '-', true)) {
-            throw new RuntimeException(
+            $message =
                 'Cannot remove flags; have you tried to set the '.
-                'recent flag or special chars?'
-            );
+                'recent flag or special chars?';
+
+            throw new MessageUpdateException($message);
         }
     }
 
     /**
      * Wrapper around the expunge command.
      *
-     * @throws RuntimeException
+     * @throws FolderUpdateException
      */
-    public function expunge()
+    public function expunge(): void
     {
         if (! $this->protocol->expunge()) {
-            throw new RuntimeException('Failed to expunge folder');
+            throw new FolderUpdateException('Failed to expunge folder');
         }
     }
 }
