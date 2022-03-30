@@ -4,9 +4,10 @@ namespace Pb\Imap;
 
 use DateTime;
 use Exception;
+use Laminas\Mail\Header\AbstractAddressList;
 use Laminas\Mail\Headers;
-use Laminas\Mail\Protocol\Imap;
 use Laminas\Mail\Storage;
+use Laminas\Mail\Storage\Imap as LaminasImap;
 use Laminas\Mail\Storage\Part;
 use Laminas\Mime\Decode;
 use Laminas\Mime\Mime;
@@ -102,7 +103,7 @@ class Mailbox
     /**
      * Get IMAP mailbox connection stream.
      *
-     * @return Imap|null
+     * @return Imap
      */
     public function getImapStream()
     {
@@ -118,19 +119,17 @@ class Mailbox
      */
     protected function loadImapStream()
     {
-        $imapStream = new Imap([
-            'ssl' => $this->options[self::OPT_SSL],
-            'host' => $this->imapHost,
-            'user' => $this->imapLogin,
-            'folder' => $this->imapFolder,
-            'password' => $this->imapPassword
-        ]);
-
-        if (! $imapStream) {
+        try {
+            return new LaminasImap([
+                'ssl' => $this->options[self::OPT_SSL],
+                'host' => $this->imapHost,
+                'user' => $this->imapLogin,
+                'folder' => $this->imapFolder,
+                'password' => $this->imapPassword
+            ]);
+        } catch (Exception $e) {
             throw new MailboxAccessException();
         }
-
-        return $imapStream;
     }
 
     public function disconnect()
@@ -155,7 +154,7 @@ class Mailbox
      */
     public function status(string $folder = null)
     {
-        $info = new stdClass;
+        $info = new stdClass();
         $folder = $folder ?: $this->imapFolder;
         $examine = $this->getImapStream()->examineFolder($folder);
 
@@ -181,15 +180,11 @@ class Mailbox
      * The object has the following properties:
      *   messages, recent, unseen, uidnext, and uidvalidity.
      *
-     * @return RecursiveIteratorIterator
+     * @return Iterator
      */
     public function getFolders(string $rootFolder = null)
     {
         $folders = $this->getImapStream()->getFolders($rootFolder);
-
-        if (! $folders) {
-            return [];
-        }
 
         return new Iterator($folders, Iterator::SELF_FIRST);
     }
@@ -325,13 +320,15 @@ class Mailbox
 
     /**
      * @throws MessageUpdateException
+     *
+     * @return bool
      */
     private function updateFlags(
         array $ids,
         array $flags,
         string $mode,
         string $folder = null
-    ): void {
+    ) {
         try {
             if ($folder && $folder !== $this->imapFolder) {
                 $this->select($folder);
@@ -341,7 +338,7 @@ class Mailbox
             $flags = array_intersect(self::$validFlags, $flags);
 
             if (! $flags || ! $ids) {
-                return;
+                return false;
             }
 
             foreach ($ids as $id) {
@@ -359,18 +356,16 @@ class Mailbox
 
             throw $exception;
         }
+
+        return true;
     }
 
     /**
      * Wrapped to retrieve a message number from a unique ID.
      *
-     * @param int $id
-     *
-     * @throws Exception\InvalidArgumentException
-     *
      * @return int
      */
-    public function getNumberByUniqueId(int $uniqueId)
+    public function getNumberByUniqueId(string $uniqueId)
     {
         return $this->getImapStream()->getNumberByUniqueId($uniqueId);
     }
@@ -412,7 +407,7 @@ class Mailbox
     public function getMessageInfo(int $id)
     {
         // Set up the new message
-        $messageInfo = new MessageInfo($id);
+        $messageInfo = new MessageInfo((string) $id);
 
         // Check if the filesize will exceed our memory limit. Since
         // decoding the message explodes new lines, it could vastly
@@ -448,8 +443,6 @@ class Mailbox
 
     /**
      * Get the message data stored in a wrapper object.
-     *
-     * @param $id
      *
      * @return Message
      */
@@ -541,10 +534,10 @@ class Mailbox
         // Add all of the message parts. This will save attachments to
         // the message object. We can iterate over the Message object
         // and get each part that way.
-        $partNum = 1;
+//        $partNum = 1;
 
         foreach ($messageInfo->message as $part) {
-            $part->partNum = $partNum++;
+//            $part->partNum = $partNum++;
             $this->processPart($message, $part);
         }
 
@@ -563,7 +556,7 @@ class Mailbox
         $addresses = [];
 
         if (isset($headers->$field)
-            && is_a($headers->$field, 'ArrayIterator')
+            && $headers->$field instanceof AbstractAddressList
         ) {
             foreach ($headers->$field->getAddressList() as $address) {
                 $addresses[] = $address;
@@ -587,7 +580,7 @@ class Mailbox
         if (($headers->has('x-attachment-id')
                 || $headers->has('content-disposition'))
             && ! self::isTextType($contentType)
-            && Mime::MESSAGE_RFC822 === ! $contentType
+            && Mime::MESSAGE_RFC822 !== $contentType
         ) {
             $this->processAttachment($message, $part);
         } else {
@@ -616,8 +609,9 @@ class Mailbox
             if ($boundary) {
                 $subStructs = Decode::splitMessageStruct(
                     $part->getContent(),
-                    $boundary);
-                $subPartNum = 1;
+                    $boundary
+                );
+//                $subPartNum = 1;
                 $subStructs = $subStructs ?: [];
 
                 foreach ($subStructs as $subStruct) {
@@ -626,14 +620,14 @@ class Mailbox
                         'headers' => $subStruct['header']
                     ]);
                     // Recursive call
-                    $subPart->partNum = $part->partNum.'.'.$subPartNum++;
+//                    $subPart->partNum = $part->partNum.'.'.$subPartNum++;
                     $this->processContent($message, $subPart);
                 }
             } else { // Most likely an RFC822 wrapper
                 $wrappedPart = new Part([
                     'raw' => $part->getContent()
                 ]);
-                $wrappedPart->partNum = $part->partNum;
+//                $wrappedPart->partNum = $part->partNum;
                 $this->processContent($message, $wrappedPart);
             }
         } elseif (self::isTextType($contentType) || ! $contentType) {
@@ -643,8 +637,10 @@ class Mailbox
                 self::convertContent(
                     $part->getContent(),
                     $part->getHeaders(),
-                    $contentType),
-                $charset);
+                    $contentType
+                ),
+                $charset
+            );
         } else {
             $this->processAttachment($message, $part);
         }

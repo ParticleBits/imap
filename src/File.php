@@ -20,7 +20,7 @@ class File
         string $mimeType,
         string $default = null
     ) {
-        if (! $filename || ! strlen($filename)) {
+        if (! strlen($filename)) {
             return null;
         }
 

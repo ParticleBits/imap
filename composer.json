@@ -42,6 +42,8 @@
     "scripts": {
         "fix": "tools/php-cs-fixer/vendor/bin/php-cs-fixer fix",
         "test": "@php tests/memory.php",
-        "lint": "tools/php-cs-fixer/vendor/bin/php-cs-fixer fix --dry-run --diff"
+        "lint": "tools/php-cs-fixer/vendor/bin/php-cs-fixer fix --dry-run --diff",
+        "phpstan": "tools/phpstan/vendor/bin/phpstan --memory-limit=1G analyse",
+        "phpstan-strict": "tools/phpstan/vendor/bin/phpstan --memory-limit=1G --level=6 analyse"
     }
 }

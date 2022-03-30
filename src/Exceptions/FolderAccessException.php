@@ -8,8 +8,8 @@ class FolderAccessException extends Exception
 {
     public function __construct(string $folder, string $verb)
     {
-        $this->message = sprintf('%s %s, %s',
-            'Cannot examine folder',
+        $this->message = sprintf('Cannot %s folder %s, %s',
+            $verb,
             $folder,
             'maybe it doesn\'t exist'
         );

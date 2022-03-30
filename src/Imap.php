@@ -2,6 +2,7 @@
 
 namespace Pb\Imap;
 
+use Laminas\Mail\Storage\Folder as LaminasFolder;
 use Laminas\Mail\Storage\Imap as LaminasImap;
 use Pb\Imap\Exceptions\FolderAccessException;
 use Pb\Imap\Exceptions\FolderUpdateException;
@@ -12,17 +13,19 @@ class Imap extends LaminasImap
     /**
      * Examine given folder. Folder must be selectable!
      *
-     * @param \Laminas\Mail\Storage\Folder|string $globalName
+     * @param LaminasFolder|string $globalName
      *   global name of folder or instance for subfolder
      *
      * @throws FolderAccessException
-     * @throws Protocol\Exception\RuntimeException
      *
      * @return array|null
      */
     public function examineFolder($globalName)
     {
-        $this->currentFolder = $globalName;
+        $this->currentFolder = is_string($globalName)
+            ? $globalName
+            : $globalName->getGlobalName();
+
         $examine = $this->protocol->examine($this->currentFolder);
 
         if (! $examine) {
@@ -37,17 +40,19 @@ class Imap extends LaminasImap
     /**
      * Select given folder.
      *
-     * @param \Laminas\Mail\Storage\Folder|string $globalName
+     * @param LaminasFolder|string $globalName
      *   global name of folder or instance for subfolder
      *
      * @throws FolderAccessException
-     * @throws Protocol\Exception\RuntimeException
      *
      * @return array|null
      */
     public function selectFolder($globalName)
     {
-        $this->currentFolder = $globalName;
+        $this->currentFolder = is_string($globalName)
+            ? $globalName
+            : $globalName->getGlobalName();
+
         $select = $this->protocol->select($this->currentFolder);
 
         if (! $select) {

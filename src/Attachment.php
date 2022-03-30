@@ -16,7 +16,7 @@ class Attachment
     public $origFilename;
 
     /**
-     * @param Laminas\Mail\Storage\Part
+     * @var Part
      */
     private $part;
 
@@ -24,7 +24,6 @@ class Attachment
      * Created during generate attachment file paths
      */
     private $baseDir;
-    private $fileSysName;
     private $fileSysPath;
     private $fileDatePath;
 
@@ -39,10 +38,6 @@ class Attachment
      */
     public function generateId(Message $message)
     {
-        if (! $this->part) {
-            throw new Exception('Part not set on attachment.');
-        }
-
         $headers = $this->part->getHeaders();
         $hasAttachmentId = $headers->has('x-attachment-id');
         $attachmentId = $hasAttachmentId
@@ -50,7 +45,7 @@ class Attachment
             : null;
         $this->id = $hasAttachmentId && $attachmentId
             ? $attachmentId
-            : self::generateAttachmentId($message, $this->part->partNum);
+            : self::generateAttachmentId($message, $this->part->key());
     }
 
     /**
@@ -103,18 +98,17 @@ class Attachment
         // an error in file_put_contents.
         $fileSysName = substr($fileSysName, 0, 250);
         // Create the YYYY/MM directory to put the attachment into
-        $this->fileDatePath = sprintf(
-            '%s%s%s',
+        $this->fileDatePath = sprintf('%s%s%s',
             date('Y', $timestamp),
             DIRECTORY_SEPARATOR,
-            date('m', $timestamp));
+            date('m', $timestamp)
+        );
         $this->filepath = $this->fileDatePath
             .DIRECTORY_SEPARATOR
             .$fileSysName;
         $this->fileSysPath = $this->baseDir
             .DIRECTORY_SEPARATOR
             .$this->filepath;
-        $this->fileSysName = $fileSysName;
     }
 
     /**

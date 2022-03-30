@@ -19,6 +19,7 @@ class MessageInfo
     public $headers;
     public $message;
     public $charset;
+    public $rawContent;
     public $rawHeaders;
     public $messageNum;
 
