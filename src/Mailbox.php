@@ -7,7 +7,6 @@ use Exception;
 use Laminas\Mail\Header\AbstractAddressList;
 use Laminas\Mail\Headers;
 use Laminas\Mail\Storage;
-use Laminas\Mail\Storage\Imap as LaminasImap;
 use Laminas\Mail\Storage\Part;
 use Laminas\Mime\Decode;
 use Laminas\Mime\Mime;
@@ -120,7 +119,7 @@ class Mailbox
     protected function loadImapStream()
     {
         try {
-            return new LaminasImap([
+            return new Imap([
                 'ssl' => $this->options[self::OPT_SSL],
                 'host' => $this->imapHost,
                 'user' => $this->imapLogin,
@@ -132,13 +131,9 @@ class Mailbox
         }
     }
 
-    public function disconnect()
+    public function disconnect(): void
     {
-        $imapStream = $this->getImapStream();
-
-        if ($imapStream) {
-            $imapStream->close();
-        }
+        $this->getImapStream()->close();
     }
 
     /**
