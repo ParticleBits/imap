@@ -529,10 +529,7 @@ class Mailbox
         // Add all of the message parts. This will save attachments to
         // the message object. We can iterate over the Message object
         // and get each part that way.
-//        $partNum = 1;
-
         foreach ($messageInfo->message as $part) {
-//            $part->partNum = $partNum++;
             $this->processPart($message, $part);
         }
 
@@ -606,7 +603,6 @@ class Mailbox
                     $part->getContent(),
                     $boundary
                 );
-//                $subPartNum = 1;
                 $subStructs = $subStructs ?: [];
 
                 foreach ($subStructs as $subStruct) {
@@ -614,15 +610,12 @@ class Mailbox
                         'content' => $subStruct['body'],
                         'headers' => $subStruct['header']
                     ]);
-                    // Recursive call
-//                    $subPart->partNum = $part->partNum.'.'.$subPartNum++;
                     $this->processContent($message, $subPart);
                 }
             } else { // Most likely an RFC822 wrapper
                 $wrappedPart = new Part([
                     'raw' => $part->getContent()
                 ]);
-//                $wrappedPart->partNum = $part->partNum;
                 $this->processContent($message, $wrappedPart);
             }
         } elseif (self::isTextType($contentType) || ! $contentType) {
