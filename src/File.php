@@ -13,8 +13,6 @@ class File
      * it tries to find one from the lookup array. If none is still
      * found use the specified default.
      *
-     * @param string $filename
-     * @param string $mimeType
      * @param string $default
      */
     public static function addExtensionIfMissing(
@@ -44,10 +42,6 @@ class File
 
     /**
      * Converts a string from one encoding to another.
-     *
-     * @param string $string
-     * @param string $fromEncoding
-     * @param string $toEncoding
      *
      * @return string Converted string if conversion was successful,
      *   or the original string if not
@@ -84,8 +78,6 @@ class File
 
     /**
      * Decodes 7bit text.
-     *
-     * @param string $string
      *
      * @return string
      */

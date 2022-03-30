@@ -4,7 +4,7 @@ namespace Pb\Imap\Exceptions;
 
 use Exception;
 
-class MessageSizeLimit extends Exception
+class MessageSizeLimitException extends Exception
 {
     public function __construct(int $maxSize, int $messageSize, int $memoryLimit)
     {

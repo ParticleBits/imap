@@ -5,11 +5,14 @@ namespace Pb\Imap;
 use DateTime;
 use Exception;
 use Laminas\Mail\Headers;
+use Laminas\Mail\Protocol\Imap;
 use Laminas\Mail\Storage;
 use Laminas\Mail\Storage\Part;
 use Laminas\Mime\Decode;
 use Laminas\Mime\Mime;
-use Pb\Imap\Exceptions\MessageSizeLimit as MessageSizeLimitException;
+use Pb\Imap\Exceptions\MailboxAccessException;
+use Pb\Imap\Exceptions\MessageSizeLimitException;
+use Pb\Imap\Exceptions\MessageUpdateException;
 use RecursiveIteratorIterator as Iterator;
 use RuntimeException;
 use stdClass;
@@ -54,19 +57,16 @@ class Mailbox
     ];
 
     // Option constants
-    const OPT_DEBUG_MODE = 'debug_mode';
-    const OPT_SKIP_ATTACHMENTS = 'skip_attachments';
-    const OPT_SSL = 'ssl';
+    public const OPT_DEBUG_MODE = 'debug_mode';
+    public const OPT_SKIP_ATTACHMENTS = 'skip_attachments';
+    public const OPT_SSL = 'ssl';
 
     /**
      * Sets up a new mailbox object with the IMAP credentials to connect.
      *
-     * @param string $hostname
-     * @param string $login
-     * @param string $password
-     * @param string $folder
+     * @throws RuntimeException
+     *
      * @param string $attachmentsDir
-     * @param array $options
      */
     public function __construct(
         string $hostname,
@@ -88,7 +88,7 @@ class Mailbox
 
         if ($attachmentsDir) {
             if (! is_dir($attachmentsDir)) {
-                throw new Exception("Directory '$attachmentsDir' not found");
+                throw new RuntimeException("Directory '$attachmentsDir' not found");
             }
 
             $this->attachmentsDir = rtrim(realpath($attachmentsDir), '\\/');
@@ -102,7 +102,7 @@ class Mailbox
     /**
      * Get IMAP mailbox connection stream.
      *
-     * @return null|\Laminas\Mail\Protocol\Imap
+     * @return Imap|null
      */
     public function getImapStream()
     {
@@ -113,6 +113,9 @@ class Mailbox
         return $this->imapStream;
     }
 
+    /**
+     * @throws MailboxAccessException
+     */
     protected function loadImapStream()
     {
         $imapStream = new Imap([
@@ -124,7 +127,7 @@ class Mailbox
         ]);
 
         if (! $imapStream) {
-            throw new Exception('Failed to connect to IMAP mailbox');
+            throw new MailboxAccessException();
         }
 
         return $imapStream;
@@ -229,7 +232,6 @@ class Mailbox
      *   UNFLAGGED - match messages that are not flagged
      *   UNKEYWORD "string" - match messages that do not have the keyword "string"
      *   UNSEEN - match messages which have not been read yet
-     * @param bool $uid
      *
      * @return array Message IDs
      */
@@ -265,7 +267,7 @@ class Mailbox
     /**
      * Changes the mailbox to a different folder.
      *
-     * @param string $folder
+     * @return array|null
      */
     public function select(string $folder)
     {
@@ -278,20 +280,17 @@ class Mailbox
      * Sends the expunge command to the mailbox. This removes any
      * messages with the \Deleted flag.
      */
-    public function expunge(string $folder = null)
+    public function expunge(string $folder = null): void
     {
         if ($folder) {
             $this->select($folder);
         }
 
-        return $this->getImapStream()->expunge();
+        $this->getImapStream()->expunge();
     }
 
     /**
      * Copies a message to another folder.
-     *
-     * @param string $folder
-     * @param int $id
      *
      * @return bool
      */
@@ -316,20 +315,23 @@ class Mailbox
         return $this->updateFlags($ids, $flags, '+', $folder);
     }
 
+    /**
+     * @return bool
+     */
     public function removeFlags(array $ids, array $flags = [], string $folder = null)
     {
         return $this->updateFlags($ids, $flags, '-', $folder);
     }
 
     /**
-     * @throws RuntimeException
+     * @throws MessageUpdateException
      */
     private function updateFlags(
         array $ids,
         array $flags,
         string $mode,
         string $folder = null
-    ) {
+    ): void {
         try {
             if ($folder && $folder !== $this->imapFolder) {
                 $this->select($folder);
@@ -343,17 +345,19 @@ class Mailbox
             }
 
             foreach ($ids as $id) {
-                if ($mode === '+') {
+                if ('+' === $mode) {
                     $this->getImapStream()->addFlags($id, $flags);
                 } else {
                     $this->getImapStream()->removeFlags($id, $flags);
                 }
             }
         } catch (Exception $e) {
-            throw new RuntimeException(
+            $exception = new MessageUpdateException(
                 "There was a problem setting the flags for message $id. ".
                 ucfirst($e->getMessage())
             );
+
+            throw $exception;
         }
     }
 
@@ -400,8 +404,6 @@ class Mailbox
      *       inReplyTo: ID of message this replying to
      *       references: List of messages this one references
      *   ].
-     *
-     * @param int $id
      *
      * @throws MessageSizeLimitException
      *
@@ -453,7 +455,7 @@ class Mailbox
      */
     public function getMessage(int $id)
     {
-        $message = new Message;
+        $message = new Message();
         $messageInfo = $this->getMessageInfo($id);
 
         // Store some common properties
@@ -554,10 +556,6 @@ class Mailbox
      * for a particular field. If $returnString is true, then the
      * comma-separated list of RFC822 name/emails is returned.
      *
-     * @param stdClass $headers
-     * @param string $field
-     * @param bool $returnString
-     *
      * @return array|string
      */
     protected function getAddresses(stdClass $headers, string $field, bool $returnString = false)
@@ -610,7 +608,7 @@ class Mailbox
             : null;
         $charset = $contentType
             ? ($charsetHeader ?: 'US-ASCII')
-            :  'US-ASCII';
+            : 'US-ASCII';
 
         if (self::isMultipartType($contentType)) {
             $boundary = $part->getHeaderField('content-type', 'boundary');
@@ -620,7 +618,7 @@ class Mailbox
                     $part->getContent(),
                     $boundary);
                 $subPartNum = 1;
-                $subStructs = ($subStructs) ?: [];
+                $subStructs = $subStructs ?: [];
 
                 foreach ($subStructs as $subStruct) {
                     $subPart = new Part([
@@ -657,7 +655,7 @@ class Mailbox
         string $contentType,
         string $content,
         string $charset
-    ) {
+    ): void {
         if (Mime::TYPE_HTML === $contentType) {
             $message->textHtml .= File::convertEncoding($content, $charset, 'UTF-8');
         } else {
@@ -667,7 +665,7 @@ class Mailbox
         }
     }
 
-    protected function processAttachment(Message &$message, Part $part)
+    protected function processAttachment(Message &$message, Part $part): void
     {
         // If attachments are disabled, skip out now
         if (true === $this->options[self::OPT_SKIP_ATTACHMENTS]) {
@@ -779,14 +777,16 @@ class Mailbox
         if (is_null($data)) {
             // If it's simple text just return it back
             if (self::isTextType($contentType)) {
-               return $content;
+                return $content;
             }
 
             if (true === $failOnNoEncode) {
-                throw new RuntimeException(
+                $exception = new RuntimeException(
                     'Missing Content-Transfer-Encoding header. '.
                     'Unsure about how to decode.'
                 );
+
+                throw $exception;
             }
 
             // Depending on file extension, we may need to
@@ -881,11 +881,13 @@ class Mailbox
     private function checkMessageSize(int $size)
     {
         if ($this->messageSizeLimit && $size > $this->messageSizeLimit) {
-            throw new MessageSizeLimitException(
+            $exception = new MessageSizeLimitException(
                 $this->messageSizeLimit,
                 $size,
                 $this->memoryLimit
             );
+
+            throw $exception;
         }
     }
 
@@ -895,7 +897,7 @@ class Mailbox
             return;
         }
 
-        $date = new DateTime;
+        $date = new DateTime();
 
         echo sprintf(
             '[%s] %s MB peak, %s MB real, %s MB cur -- %s%s',

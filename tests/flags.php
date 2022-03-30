@@ -7,17 +7,19 @@ include __DIR__.'/../vendor/autoload.php';
 
 gc_enable();
 
-function usage() {
+function usage()
+{
     echo 'Please edit the contents of secret.ini with '
         ."your email credentials\n";
     exit;
 }
 
-function getFlags($flags) {
+function getFlags($flags)
+{
     $set = [];
 
     foreach ($flags as $flag => $value) {
-        if ((int) $value === 1) {
+        if (1 === (int) $value) {
             $set[] = $flag;
         }
     }
@@ -58,7 +60,7 @@ STR;
 
 $line = readline('Do you want to continue? [y/N] ');
 
-if ($line !== 'y' && $line !== 'Y') {
+if ('y' !== $line && 'Y' !== $line) {
     exit(0);
 }
 
@@ -79,12 +81,12 @@ try {
         ]);
 
     $message = $mailbox->getMessage(1);
-    $mailbox->debug('Current flags: '. implode(', ', getFlags($message->flags)));
+    $mailbox->debug('Current flags: '.implode(', ', getFlags($message->flags)));
 
     foreach ($flags as $flag) {
-        $mailbox->debug('Setting message as '. $flag);
+        $mailbox->debug('Setting message as '.$flag);
         $newFlags = $mailbox->addFlags([1], [$flag]);
-        $mailbox->debug('Unsetting message as '. $flag);
+        $mailbox->debug('Unsetting message as '.$flag);
         $newFlags = $mailbox->removeFlags([1], [$flag]);
         gc_collect_cycles();
         usleep(100000);

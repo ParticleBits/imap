@@ -44,8 +44,6 @@ class Message
 
     /**
      * Store a new attachment to the internal array.
-     *
-     * @param Attachment $attachment
      */
     public function addAttachment(Attachment $attachment)
     {

@@ -36,8 +36,6 @@ class Attachment
     /**
      * Generate a new, reproducible attachment ID for a message's
      * attachment part.
-     *
-     * @param Message $message
      */
     public function generateId(Message $message)
     {
@@ -59,7 +57,6 @@ class Attachment
      * Create an ID for a message attachment. This takes the attributes
      * name, date, filename, etc and hashes the result.
      *
-     * @param Message $message
      * @param string $partNum Can take the form "1.2.1", not always an int
      *
      * @return string
@@ -83,9 +80,6 @@ class Attachment
      * attachment part. This will set the path to be inside a
      * folder like 'YYYY/MM' into the $baseDir location. The
      * date part is determined from the $message's date.
-     *
-     * @param Message $message
-     * @param string $baseDir
      */
     public function generateFilepath(Message $message, string $baseDir)
     {
